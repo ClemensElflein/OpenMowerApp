@@ -26,10 +26,8 @@ void main() async {
   mqttConnection.start();
 
   // Periodic MQTT reconnect
-  Timer.periodic(const Duration(seconds: 1), (timer) {
-    print("reconnectTIMER");
+  Timer.periodic(const Duration(seconds: 5), (timer) {
     mqttConnection.tryConnect();
-
   });
 
 

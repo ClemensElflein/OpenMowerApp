@@ -5,6 +5,7 @@ import 'package:open_mower_app/screens/dashboard.dart';
 import 'package:open_mower_app/screens/sensor_values.dart';
 import 'package:open_mower_app/screens/settings.dart';
 import 'package:open_mower_app/screens/remote_control.dart';
+import 'package:open_mower_app/views/logo_widget.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -25,7 +26,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: "Open Mower".n,
+          title: const LogoWidget(size: 200),
           elevation: 10,
           shadowColor: Colors.black,
         ),
