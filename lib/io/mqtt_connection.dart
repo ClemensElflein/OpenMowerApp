@@ -1,6 +1,7 @@
 
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:open_mower_app/models/map_model.dart';
+import 'package:open_mower_app/models/robot_state.dart';
 
 import 'server.dart' if (dart.library.html) 'browser.dart' as mqttclient;
 import 'package:get/get.dart';
@@ -112,6 +113,16 @@ class MqttConnection  {
     robotStateController.map.refresh();
   }
 
+  void parseRobotState(obj) {
+    RobotState state = RobotState();
+    state.posX = obj["d"]["pose"]["x"];
+    state.posY = obj["d"]["pose"]["y"];
+    state.heading = obj["d"]["pose"]["heading"];
+    state.posAccuracy = obj["d"]["pose"]["pos_accuracy"];
+    state.headingAccuracy = obj["d"]["pose"]["heading_accuracy"];
+    state.headingValid = obj["d"]["pose"]["heading_valid"] > 0;
+    robotStateController.robotState.value = state;
+  }
 
   void onConnected() {
     print("MQTT connected");
@@ -120,6 +131,7 @@ class MqttConnection  {
     client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
 
       for (var msg in c) {
+          // print("got message on ${msg.topic}");
           final payload = msg.payload as MqttPublishMessage;
           switch(msg.topic) {
             case "map/bson": {
@@ -131,11 +143,22 @@ class MqttConnection  {
               parseMap(object);
             }
             break;
+            case "robot_state/bson": {
+              // Got the robot state
+              final bytes = payload.payload.message?.toList(growable: false);
+              if(bytes == null || bytes.isBlank == true) {
+                continue;
+              }
+              final object = BSON().deserialize(BsonBinary.from(bytes));
+              parseRobotState(object);
+            }
+            break;
           }
       }
     });
 
     client.subscribe("map/bson", MqttQos.atLeastOnce);
+    client.subscribe("robot_state/bson", MqttQos.atMostOnce);
   }
 
   void onDisconnected() {

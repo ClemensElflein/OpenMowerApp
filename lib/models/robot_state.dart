@@ -12,4 +12,7 @@ class RobotState {
   bool isRunning = false;
 
   bool isConnected = false;
+
+  double posX = 0, posY = 0, posAccuracy = 0, heading = 0, headingAccuracy = 0;
+  bool headingValid = false;
 }

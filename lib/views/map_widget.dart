@@ -27,8 +27,10 @@ class MapWidget extends GetView<RobotStateController> {
             width: double.infinity,
             height: double.infinity,
             child: RepaintBoundary(child:Obx(() => CustomPaint(
+                  willChange: false,
                   isComplex: true,
-                  painter: MapPainter(controller.map.value)
+                  painter: MapPainter(controller.map.value),
+              foregroundPainter: RobotPainter(controller.map.value, controller.robotState.value),
                 )))));
   }
 }
@@ -65,11 +67,16 @@ class RobotPainter extends CustomPainter {
     canvas.translate(mapModel.width / 2 - mapModel.centerX,
         mapModel.height / 2 + mapModel.centerY);
 
-    // canvas.drawCircle(Offset(robotState.), radius, paint)
+    canvas.drawCircle(Offset(robotState.posX, robotState.posY), 0.4, Paint()
+    ..color = Colors.red
+    ..style = PaintingStyle.fill);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    if(oldDelegate is RobotPainter) {
+      return true;
+    }
     return false;
   }
 
@@ -98,12 +105,12 @@ class MapPainter extends CustomPainter {
     ..color = const Color.fromRGBO(50, 50, 50, 1.0)
     ..style = PaintingStyle.fill;
   final _coordinateLinesPaint = Paint()
-    ..color = Color.fromRGBO(210,210,210,1)
+    ..color = const Color.fromRGBO(210,210,210,1)
     ..style = PaintingStyle.stroke
     ..strokeCap = StrokeCap.square
     ..strokeWidth = 0;
   final _coordinateLinesPaintOrigin = Paint()
-    ..color = Color.fromRGBO(190,190,190,1)
+    ..color = const Color.fromRGBO(190,190,190,1)
     ..style = PaintingStyle.stroke
     ..strokeCap = StrokeCap.square
     ..strokeWidth = 0.1;
@@ -231,12 +238,14 @@ class MapPainter extends CustomPainter {
           ..style = PaintingStyle.fill);
 
 
+/*
     for (final area in mapModel.mowingAreas) {
       canvas.drawShadow(area.outline, Colors.black, 5, false);
     }
     for (final area in mapModel.navigationAreas) {
       canvas.drawShadow(area.outline, Colors.black, 5, false);
     }
+*/
 
     //
     // for(final area in mapModel.navigationAreas) {
