@@ -1,17 +1,24 @@
 
 import 'package:mqtt5_client/mqtt5_client.dart';
+import 'package:open_mower_app/models/map_model.dart';
 
 import 'server.dart' if (dart.library.html) 'browser.dart' as mqttclient;
 import 'package:get/get.dart';
 import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/controllers/settings_controller.dart';
+import 'dart:math';
+import 'dart:ui';
+import 'package:bson/bson.dart';
 
 class MqttConnection  {
 
   static final MqttConnection _instance = MqttConnection._internal();
-
+  int _client_id = 0;
   // singleton constructor
-  MqttConnection._internal();
+  MqttConnection._internal() {
+    final rng = Random();
+    _client_id = rng.nextInt(99999);
+  }
 
   factory MqttConnection() {
     return _instance;
@@ -32,7 +39,7 @@ class MqttConnection  {
   }
 
   void start() {
-    client.logging(on: true);
+    // client.logging(on: true);
     client.keepAlivePeriod = 20;
     client.autoReconnect = false;
     client.resubscribeOnAutoReconnect = false;
@@ -40,27 +47,95 @@ class MqttConnection  {
     client.onDisconnected = onDisconnected;
   }
 
+  MapAreaModel convertAreaToPath(area) {
+    Path areaPoly = Path();
+    {
+      bool first = true;
+      for (final pt in area["outline"]) {
+        if (first) {
+          areaPoly.moveTo(pt["x"], -pt["y"]);
+          first = false;
+        } else {
+          areaPoly.lineTo(pt["x"], -pt["y"]);
+        }
+      }
+      areaPoly.close();
+    }
+    final List<Path> obstaclePolys = [];
+    {
+      final obs = area["obstacles"] ?? [];
+      for (final list in obs) {
+        Path obstaclePoly = Path();
+        bool first = true;
+        for (final pt in list) {
+          if (first) {
+            obstaclePoly.moveTo(pt["x"], -pt["y"]);
+            first = false;
+          } else {
+            obstaclePoly.lineTo(pt["x"], -pt["y"]);
+          }
+        }
+        obstaclePoly.close();
+        obstaclePolys.add(obstaclePoly);
+      }
+    }
+
+
+    return MapAreaModel(areaPoly, obstaclePolys);
+  }
+
+  void parseMap(obj) {
+    final mapModel = MapModel();
+
+    mapModel.width =   obj["d"]["meta"]["mapWidth"] ?? 0;
+    mapModel.height =  obj["d"]["meta"]["mapHeight"] ?? 0;
+    mapModel.centerX = obj["d"]["meta"]["mapCenterX"] ?? 0;
+    mapModel.centerY = obj["d"]["meta"]["mapCenterY"] ?? 0;
+
+    final wa = obj["d"]["working_areas"];
+    if(wa != null) {
+      for(final area in wa) {
+        mapModel.mowingAreas.add(convertAreaToPath(area));
+      }
+    }
+    final na = obj["d"]["navigation_areas"];
+    if(na != null) {
+      for(final area in na) {
+        mapModel.navigationAreas.add(convertAreaToPath(area));
+      }
+    }
+
+    print("Got a map with ${mapModel.mowingAreas.length} mowing areas and ${mapModel.navigationAreas.length} navigation areas. Size: ${mapModel.width} x ${mapModel.height}");
+
+    final RobotStateController robotStateController = Get.find();
+    robotStateController.map.value = mapModel;
+    robotStateController.map.refresh();
+  }
+
 
   void onConnected() {
     print("MQTT connected");
     robotStateController.setConnected(true);
-    //
-    // client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
-    //   print(c);
-    //   final recMess = c[0].payload as MqttPublishMessage;
-    //   final pt = MqttUtilities.bytesToStringAsString(recMess.payload.message!);
-    //
-    //   /// The above may seem a little convoluted for users only interested in the
-    //   /// payload, some users however may be interested in the received publish message,
-    //   /// lets not constrain ourselves yet until the package has been in the wild
-    //   /// for a while.
-    //   /// The payload is a byte buffer, this will be specific to the topic
-    //   print(
-    //       'EXAMPLE::Change notification:: topic is <${c[0].topic}>, payload is <-- $pt -->');
-    //   print('');
-    // });
 
-    client.subscribe("sensors/+/info", MqttQos.atLeastOnce);
+    client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+
+      for (var msg in c) {
+          final payload = msg.payload as MqttPublishMessage;
+          switch(msg.topic) {
+            case "map/bson": {
+              final bytes = payload.payload.message?.toList(growable: false);
+              if(bytes == null || bytes.isBlank == true) {
+                continue;
+              }
+              final object = BSON().deserialize(BsonBinary.from(bytes));
+              parseMap(object);
+            }
+            break;
+          }
+      }
+    });
+
+    client.subscribe("map/bson", MqttQos.atLeastOnce);
   }
 
   void onDisconnected() {
@@ -85,15 +160,15 @@ class MqttConnection  {
     client.port = settingsController.mqttPort;
 
 
-    // final connMess = MqttConnectMessage()
+    final connMess = MqttConnectMessage()
     // .withProtocolName("mqtt")
     // .withProtocolName("websocket")
     // .startClean()
-    //     .withClientIdentifier("client-11");
+        .withClientIdentifier("om-client-$_client_id");
       // .authenticateAs(settingsController.mqttUsername, settingsController.mqttPassword);
 
     print('Mosquitto client connecting to ${client.server} on ${client.port}....');
-    // client.connectionMessage = connMess;
+    client.connectionMessage = connMess;
 
     try {
       await client.connect();

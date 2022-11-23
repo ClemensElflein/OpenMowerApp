@@ -27,6 +27,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
         appBar: AppBar(
           title: const LogoWidget(size: 200),
+          titleSpacing: 0,
           elevation: 10,
           shadowColor: Colors.black,
         ),

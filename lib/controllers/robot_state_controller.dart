@@ -1,8 +1,11 @@
 import 'package:get/get.dart';
+import 'package:open_mower_app/models/map_model.dart';
 import 'package:open_mower_app/models/robot_state.dart';
 
 class RobotStateController extends GetxController {
   final robotState = RobotState().obs;
+
+  final map = MapModel().obs;
 
   @override
   void onInit() {
@@ -32,4 +35,5 @@ class RobotStateController extends GetxController {
     robotState.value.isConnected = isConnected;
     robotState.refresh();
   }
+
 }
