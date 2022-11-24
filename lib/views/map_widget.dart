@@ -8,6 +8,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:open_mower_app/models/map_model.dart';
 import 'package:open_mower_app/models/robot_state.dart';
 
+
 class MapWidget extends GetView<RobotStateController> {
   const MapWidget({super.key});
 
@@ -27,66 +28,29 @@ class MapWidget extends GetView<RobotStateController> {
             width: double.infinity,
             height: double.infinity,
             child: RepaintBoundary(child:Obx(() => CustomPaint(
-                  willChange: false,
                   isComplex: true,
-                  painter: MapPainter(controller.map.value),
-              foregroundPainter: RobotPainter(controller.map.value, controller.robotState.value),
+                  painter: MapPainter(controller.map.value, controller.robotState.value),
                 )))));
   }
 }
 
-class RobotPainter extends CustomPainter {
 
+class MapPainter extends CustomPainter {
+  MapPainter(this.mapModel, this.robotState) {
+    path_0.reset();
+    path_0.moveTo(0.1979167,0.8750000);
+    path_0.lineTo(0.1666667,0.8437500);
+    path_0.lineTo(0.5000000,0.08333333);
+    path_0.lineTo(0.8333333,0.8437500);
+    path_0.lineTo(0.8020833,0.8750000);
+    path_0.lineTo(0.5000000,0.7375000);
+
+    path_0.moveTo(0.5000000,0.6708333);
+    path_0.close();
+  }
 
   final MapModel mapModel;
   final RobotState robotState;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // don't try to draw map if it has size 0
-    if(mapModel.width == 0 || mapModel.height == 0) {
-      return;
-    }
-
-    final backgroundRect = Offset.zero & size;
-
-    final drawingRect =
-    Rect.fromLTRB(25, 200, size.width - 25, size.height - 125);
-
-    final mapScale = min(drawingRect.width / mapModel.width,
-        drawingRect.height / mapModel.height);
-
-
-
-    canvas.translate(
-        drawingRect.topLeft.dx +
-            (drawingRect.width - mapModel.width * mapScale) / 2.0,
-        drawingRect.topLeft.dy +
-            (drawingRect.height - mapModel.height * mapScale) / 2.0);
-    canvas.scale(mapScale);
-    canvas.translate(mapModel.width / 2 - mapModel.centerX,
-        mapModel.height / 2 + mapModel.centerY);
-
-    canvas.drawCircle(Offset(robotState.posX, robotState.posY), 0.4, Paint()
-    ..color = Colors.red
-    ..style = PaintingStyle.fill);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    if(oldDelegate is RobotPainter) {
-      return true;
-    }
-    return false;
-  }
-
-  RobotPainter(this.mapModel, this.robotState);
-}
-
-class MapPainter extends CustomPainter {
-  MapPainter(this.mapModel);
-
-  final MapModel mapModel;
 
   final _backgroundPaint = Paint()
     ..color = const Color.fromRGBO(0, 0, 0, 0.1)
@@ -115,9 +79,18 @@ class MapPainter extends CustomPainter {
     ..strokeCap = StrokeCap.square
     ..strokeWidth = 0.1;
 
+  final _robotPaint = Paint()
+    ..color = const Color.fromRGBO(25, 25, 25, 1.0)
+    ..style = PaintingStyle.fill;
+
+
+
+  final Path path_0 = Path();
+
+
   @override
   void paint(Canvas canvas, Size size) {
-    print("map paint");
+    // print("map paint");
     final backgroundRect = Offset.zero & size;
 
     final drawingRect =
@@ -286,16 +259,28 @@ class MapPainter extends CustomPainter {
         canvas.drawPath(obstacle, _obstaclePaint);
       }
     }
+
+    canvas.translate(robotState.posX, robotState.posY);
+    // canvas.drawCircle(Offset.zero, 0.3, Paint()..color = Colors.blueAccent.withOpacity(0.8) ..style = PaintingStyle.fill);
+    canvas.drawCircle(Offset.zero, 0.3, Paint()..color = Colors.blueAccent.withOpacity(0.4) ..style = PaintingStyle.fill);
+
+    // Draw robot icon
+    {
+      canvas.rotate(-(robotState.heading - pi/2) % (2.0*pi));
+      canvas.scale(0.5);
+      canvas.translate(-0.5, -0.5);
+      canvas.drawPath(path_0, _robotPaint);
+    }
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     if (oldDelegate is MapPainter) {
-      if (oldDelegate.mapModel != mapModel) {
-        print("new map model, should repaint!");
+      if (oldDelegate.robotState != robotState || oldDelegate.mapModel != mapModel) {
+        // print("new map model, should repaint!");
         return true;
       } else {
-        print("same map model, should NOT repaint!");
+        // print("same map model, should NOT repaint!");
       }
     }
     return false;

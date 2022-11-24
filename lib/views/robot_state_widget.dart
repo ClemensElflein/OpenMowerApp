@@ -7,6 +7,16 @@ import 'package:niku/namespace.dart' as n;
 class RobotStateWidget extends GetView<RobotStateController> {
   const RobotStateWidget({super.key});
 
+  IconData getGpsIcon(percent) {
+    if(percent > 0.75) {
+      return Icons.gps_fixed;
+    }
+    if(percent >= 0.25) {
+      return Icons.gps_not_fixed;
+    }
+    return Icons.gps_off;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -33,12 +43,12 @@ class RobotStateWidget extends GetView<RobotStateController> {
                     alignment: PlaceholderAlignment.middle),
               ])),
           RichText(
-              text: const TextSpan(
-                  style: TextStyle(color: Colors.black87),
+              text: TextSpan(
+                  style: const TextStyle(color: Colors.black87),
                   children: [
-                TextSpan(text: "GPS: "),
+                const TextSpan(text: "GPS: "),
                 WidgetSpan(
-                    child: Icon(Icons.gps_off, color: Colors.black54),
+                    child: Obx(() => Icon(getGpsIcon(controller.robotState.value.gpsPercent), color: Colors.black54)),
                     alignment: PlaceholderAlignment.middle),
               ])),
           RichText(

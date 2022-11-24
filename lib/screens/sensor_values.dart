@@ -14,6 +14,7 @@ class SensorValues extends GetView<SensorsController> {
     return n.Stack(
       [
         n.Column([
+          Obx(()=>
           n.GridView.extent(
             maxCrossAxisExtent: 200,
           )
@@ -26,7 +27,7 @@ class SensorValues extends GetView<SensorsController> {
             ..hFull
             ..crossAxisSpacing = 8
             ..mainAxisSpacing = 8
-            ..expanded,
+            ..expanded),
         ])
           ..mt=60,
         const RobotStateWidget()

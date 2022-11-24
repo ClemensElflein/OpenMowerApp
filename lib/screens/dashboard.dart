@@ -13,14 +13,14 @@ class Dashboard extends GetView<RobotStateController> {
   Widget build(BuildContext context) {
     return n.Stack(
       [
-        MapWidget(),
+        const MapWidget(),
         n.Column([
           n.Column([
             Card(
               elevation: 3,
               child: n.Column([
                 "Current State:".bodyLarge..m = 4,
-                "Mowing - Docking".h4..m = 4
+                Obx(() => controller.robotState.value.currentState.h4..m = 4)
               ])
                 ..p = 16
                 ..mainAxisAlignment = MainAxisAlignment.start

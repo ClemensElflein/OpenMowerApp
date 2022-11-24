@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:open_mower_app/controllers/remote_controller.dart';
 import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/controllers/sensors_controller.dart';
 import 'package:open_mower_app/controllers/settings_controller.dart';
@@ -19,11 +20,14 @@ void main() async {
 
   // Second the robotStateController. MQTTConnection needs it
   final robotStateController = Get.put(RobotStateController());
+  final sensorStateController = Get.put(SensorsController());
 
   initServices();
   final MqttConnection mqttConnection = Get.find();
 
   mqttConnection.start();
+
+  Get.put(RemoteController());
 
   // Periodic MQTT reconnect
   Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -34,13 +38,6 @@ void main() async {
 
 
 
-  final sensorStateController = Get.put(SensorsController());
-  sensorStateController.sensorStates["/sensors/v_batt"] = DoubleSensorState("Batt. Voltage", 0, 30, "A")..value = 1234567;
-  sensorStateController.sensorStates["/sensors/v_charge"] = DoubleSensorState("Charge. Voltage", 0, 30, "min");
-  for(var i = 0; i < 200; i++) {
-    sensorStateController.sensorStates["/sensors/sensor_$i"] = DoubleSensorState("Sensor $i", 0, 30, "V");
-  }
-  sensorStateController.sensorStates.refresh();
 
   runApp(const MyApp());
 }

@@ -1,7 +1,9 @@
 
 import 'package:mqtt5_client/mqtt5_client.dart';
+import 'package:open_mower_app/controllers/sensors_controller.dart';
 import 'package:open_mower_app/models/map_model.dart';
 import 'package:open_mower_app/models/robot_state.dart';
+import 'package:open_mower_app/models/sensor_state.dart';
 
 import 'server.dart' if (dart.library.html) 'browser.dart' as mqttclient;
 import 'package:get/get.dart';
@@ -10,8 +12,10 @@ import 'package:open_mower_app/controllers/settings_controller.dart';
 import 'dart:math';
 import 'dart:ui';
 import 'package:bson/bson.dart';
+import 'package:typed_data/typed_data.dart';
 
 class MqttConnection  {
+
 
   static final MqttConnection _instance = MqttConnection._internal();
   int _client_id = 0;
@@ -29,6 +33,9 @@ class MqttConnection  {
 
   final SettingsController settingsController = Get.find();
   final RobotStateController robotStateController = Get.find();
+  final SensorsController sensorsController = Get.find();
+
+  final RegExp exp = RegExp(r'sensors/(.*)/bson');
 
   final client = mqttclient.get();
 
@@ -46,6 +53,20 @@ class MqttConnection  {
     client.resubscribeOnAutoReconnect = false;
     client.onConnected = onConnected;
     client.onDisconnected = onDisconnected;
+  }
+
+  void sendJoystick(double x, double r) {
+    final map = {"vx": x,
+    "vz": r};
+    final binary = BSON().serialize(map);
+    final buffer = Uint8Buffer();
+    buffer.addAll(binary.byteList);
+    try {
+      client.publishMessage("/teleop", MqttQos.atMostOnce, buffer);
+    } catch(e) {
+      print("error publishing to mqtt");
+    }
+
   }
 
   MapAreaModel convertAreaToPath(area) {
@@ -115,13 +136,40 @@ class MqttConnection  {
 
   void parseRobotState(obj) {
     RobotState state = RobotState();
+    state.isConnected = true;
     state.posX = obj["d"]["pose"]["x"];
-    state.posY = obj["d"]["pose"]["y"];
+    state.posY = -obj["d"]["pose"]["y"];
     state.heading = obj["d"]["pose"]["heading"];
     state.posAccuracy = obj["d"]["pose"]["pos_accuracy"];
     state.headingAccuracy = obj["d"]["pose"]["heading_accuracy"];
     state.headingValid = obj["d"]["pose"]["heading_valid"] > 0;
+    state.currentState = obj["d"]["current_state"];
+    state.gpsPercent = obj["d"]["gps_percentage"];
     robotStateController.robotState.value = state;
+  }
+
+
+
+  void parseSensorInfos(obj) {
+    print("Got new sensor infos, refreshing");
+    for(final sensor_info in obj["d"]) {
+      switch(sensor_info["value_type"]) {
+        case "DOUBLE": {
+          // Got a double sensor
+          final sensor = DoubleSensorState(sensor_info["sensor_name"], sensor_info["min_value"], sensor_info["max_value"], sensor_info["unit"]);
+          sensorsController.sensorStates[sensor_info["sensor_id"]] = sensor;
+        }
+      }
+    }
+    sensorsController.sensorStates.refresh();
+  }
+
+  void parseSensorData(sensorId, obj) {
+    final sensor = sensorsController.sensorStates[sensorId];
+    if(sensor != null) {
+      sensor.value = obj["d"];
+    }
+    sensorsController.sensorStates.refresh();
   }
 
   void onConnected() {
@@ -153,12 +201,43 @@ class MqttConnection  {
               parseRobotState(object);
             }
             break;
+            case "sensor_infos/bson": {
+              // Got the robot state
+              final bytes = payload.payload.message?.toList(growable: false);
+              if(bytes == null || bytes.isBlank == true) {
+                continue;
+              }
+              final object = BSON().deserialize(BsonBinary.from(bytes));
+              parseSensorInfos(object);
+            }
+            break;
+            default: {
+              if(msg.topic != null) {
+                // It's probably some sensor data, get ID
+                final match = exp.firstMatch(msg.topic!);
+                if (match != null) {
+                  // Got sensor data bson
+                  final bytes = payload.payload.message?.toList(growable: false);
+                  if(bytes == null || bytes.isBlank == true) {
+                    continue;
+                  }
+                  final object = BSON().deserialize(BsonBinary.from(bytes));
+                  parseSensorData(match[1], object);
+                } else {
+                  print("got unknown message on topic: ${msg.topic}");
+                }
+              }
+            }
+            break;
           }
       }
     });
 
     client.subscribe("map/bson", MqttQos.atLeastOnce);
+    client.subscribe("sensor_infos/bson", MqttQos.atLeastOnce);
     client.subscribe("robot_state/bson", MqttQos.atMostOnce);
+    client.subscribe("robot_state/bson", MqttQos.atMostOnce);
+    client.subscribe("sensors/+/bson", MqttQos.atMostOnce);
   }
 
   void onDisconnected() {
