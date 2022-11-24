@@ -55,14 +55,14 @@ class MqttConnection  {
     client.onDisconnected = onDisconnected;
   }
 
-  void sendJoystick(double x, double r) {
+  void sendJoystick(double x, double r, bool high_qos) {
     final map = {"vx": x,
     "vz": r};
     final binary = BSON().serialize(map);
     final buffer = Uint8Buffer();
     buffer.addAll(binary.byteList);
     try {
-      client.publishMessage("/teleop", MqttQos.atMostOnce, buffer);
+      client.publishMessage("/teleop", high_qos ? MqttQos.atLeastOnce : MqttQos.atMostOnce, buffer);
     } catch(e) {
       print("error publishing to mqtt");
     }

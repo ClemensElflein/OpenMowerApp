@@ -5,6 +5,7 @@ import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:get/get.dart';
 import 'package:open_mower_app/controllers/remote_controller.dart';
 import 'package:open_mower_app/models/joystick_command.dart';
+import 'package:open_mower_app/views/map_widget.dart';
 
 class RemoteControl extends GetView<RemoteController> {
   const RemoteControl({super.key});
@@ -13,15 +14,16 @@ class RemoteControl extends GetView<RemoteController> {
   Widget build(BuildContext context) {
     return Stack(
           children: [
-            Container(
-              color: Colors.white,
-            ),
+            const MapWidget(),
             Align(
               alignment: const Alignment(0, 0.8),
               child: Joystick(
                 mode: JoystickMode.all,
+                onStickDragEnd: () {
+                  controller.forceSendUpdate(const JoystickCommand(0,0));
+                },
                 listener: (details) {
-                  controller.joystickCommand.value = JoystickCommand(details.y, details.x);
+                  controller.joystickCommand.value = JoystickCommand(-details.y*1.0, -details.x*1.6);
                 },
               ),
             ),
