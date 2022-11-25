@@ -180,6 +180,7 @@ class MqttConnection  {
         }
       }
 
+      print("available actions: $newActionSet");
       robotStateController.availableActions.value = newActionSet;
   }
 

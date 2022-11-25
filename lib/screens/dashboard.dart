@@ -39,7 +39,7 @@ class Dashboard extends GetView<RobotStateController> {
               child: Obx(() => n.Row([
                     !controller.hasAction("mower_logic:mowing/pause")
                         ? (n.Button.elevatedIcon(
-                            "Start Mowing".n, n.Icon(Icons.play_arrow))
+                            "Start".n, n.Icon(Icons.play_arrow))
                           ..enable = (controller
                                   .hasAction("mower_logic:idle/start_mowing") ||
                               controller
@@ -57,18 +57,17 @@ class Dashboard extends GetView<RobotStateController> {
                           }
                           ..expanded
                           ..elevation = 2
-                          ..p = 24)
+                          ..p = 16)
                         : (n.Button.elevatedIcon(
-                            "Pause Mowing".n, n.Icon(Icons.pause))
+                            "Pause".n, n.Icon(Icons.pause))
                           ..enable =
                               controller.hasAction("mower_logic:mowing/pause")
                           ..onPressed = () {
                             remoteControl
                                 .callAction("mower_logic:mowing/pause");
                           }
-                          ..expanded
                           ..elevation = 2
-                          ..p = 24),
+                          ..p = 16),
                     n.Button.elevatedIcon("Stop".n, n.Icon(Icons.home))
                       ..enable = controller
                           .hasAction("mower_logic:mowing/abort_mowing")
@@ -77,7 +76,7 @@ class Dashboard extends GetView<RobotStateController> {
                             .callAction("mower_logic:mowing/abort_mowing");
                       }
                       ..elevation = 2
-                      ..p = 24,
+                      ..p = 16,
                     n.Button.elevatedIcon(
                         "Area Recording".n, n.Icon(Icons.fiber_manual_record))
                       ..enable = controller
@@ -87,10 +86,10 @@ class Dashboard extends GetView<RobotStateController> {
                             "mower_logic:idle/start_area_recording");
                       }
                       ..elevation = 2
-                      ..p = 24,
+                      ..p = 16,
                   ])
                     ..gap = 8
-                    ..p = 24))
+                    ..p = 16))
         ])
           ..mt = 60,
         const RobotStateWidget(),

@@ -33,5 +33,13 @@ class RobotStateController extends GetxController {
   bool hasAction(String action) {
     return availableActions.contains(action);
   }
+  bool hasAnyAction(List<String> actions) {
+    for(final a in actions) {
+      if(availableActions.contains(a)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
 }

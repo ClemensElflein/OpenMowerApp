@@ -9,10 +9,9 @@ import 'package:open_mower_app/models/joystick_command.dart';
 import 'package:open_mower_app/views/map_widget.dart';
 import 'package:open_mower_app/views/robot_state_widget.dart';
 
-
 class RemoteControl extends GetView<RemoteController> {
   RemoteControl({super.key});
-  
+
   final RobotStateController robotState = Get.find();
 
   Widget buildSaveAreaDialog() {
@@ -21,33 +20,35 @@ class RemoteControl extends GetView<RemoteController> {
       ..content = "Save area as navigation area or as mowing area?".n
       ..actions = [
         n.Button("Mowing Area".n)
-          ..enable = robotState.hasAction(
-              "mower_logic:area_recording/finish_mowing_area")
+          // ..enable = robotState
+          //     .hasAction("mower_logic:area_recording/finish_mowing_area")
           ..onPressed = () {
-            controller.callAction("mower_logic:area_recording/finish_mowing_area");
+            controller
+                .callAction("mower_logic:area_recording/finish_mowing_area");
+            Get.back();
           }
           ..bold
           ..p = 24,
         n.Button("Navigation Area".n)
-          ..enable = robotState.hasAction(
-              "mower_logic:area_recording/finish_navigation_area")
+          // ..enable = robotState
+          //     .hasAction("mower_logic:area_recording/finish_navigation_area")
           ..onPressed = () {
-            controller.callAction("mower_logic:area_recording/finish_navigation_area");
+            controller.callAction(
+                "mower_logic:area_recording/finish_navigation_area");
+            Get.back();
           }
           ..bold
           ..p = 24,
         n.Button("Don't Save".n)
-          ..enable = robotState.hasAction(
-              "mower_logic:area_recording/finish_discard")
           ..onPressed = () {
             controller.callAction("mower_logic:area_recording/finish_discard");
+            Get.back();
           }
           ..bold
           ..color = Colors.red
           ..p = 24
       ];
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -71,47 +72,76 @@ class RemoteControl extends GetView<RemoteController> {
           )),
           Material(
               elevation: 5,
-              child: Obx(() => n.Row([
-                !robotState.hasAction("mower_logic:area_recording/stop_recording") ?
-                (n.Button.elevatedIcon(
-                    "Start Recording".n, n.Icon(Icons.fiber_manual_record))
-                  ..enable = robotState.hasAction("mower_logic:area_recording/start_recording")
-                  ..onPressed = () {controller.callAction("mower_logic:area_recording/start_recording");}
-                  ..expanded
-                  ..elevation = 2
-                  ..p = 24)
-                :
-                (n.Button.elevatedIcon(
-                    "Stop Recording".n, n.Icon(Icons.fiber_manual_record))
-                  ..visible = robotState.hasAction("mower_logic:area_recording/stop_recording")
-                  ..onPressed = () {controller.callAction("mower_logic:area_recording/stop_recording");}
-                  ..style = n.ButtonStyle(backgroundColor: Colors.red)
-                  ..expanded
-                  ..elevation = 2
-                  ..p = 24),
-                n.Button.elevatedIcon("Finish Area".n, n.Icon(Icons.stop),
-                    onPressed: () {
-                  n.showDialog(
-                      barrierDismissible: false,
-                      context: context,
-                      builder: (context) => buildSaveAreaDialog());
-                })
-                  ..enable = robotState.hasAction("mower_logic:area_recording/record_dock")
-                  ..elevation = 2
-                  ..p = 24,
-                n.Button.elevatedIcon("Record Docking".n, n.Icon(Icons.home))
-                  ..enable = robotState.hasAction("mower_logic:area_recording/record_dock")
-                  ..onPressed = () {controller.callAction("mower_logic:area_recording/record_dock");}
-                  ..elevation = 2
-                  ..p = 24,
-                n.Button.elevatedIcon("Exit Recording Mode".n, n.Icon(Icons.exit_to_app))
-                  ..enable = robotState.hasAction("mower_logic:area_recording/exit_recording_mode")
-                  ..onPressed = () {controller.callAction("mower_logic:area_recording/exit_recording_mode");}
-                  ..elevation = 2
-                  ..p = 24,
-              ])
-                ..gap = 8
-                ..p = 24))
+              child: Obx(() => n.Column([
+                    n.Row([
+                      !robotState.hasAction(
+                              "mower_logic:area_recording/stop_recording")
+                          ? (n.Button.elevatedIcon("Start Recording".n,
+                              n.Icon(Icons.fiber_manual_record))
+                            ..enable = robotState.hasAction(
+                                "mower_logic:area_recording/start_recording")
+                            ..onPressed = () {
+                              controller.callAction(
+                                  "mower_logic:area_recording/start_recording");
+                            }
+                            ..expanded
+                            ..elevation = 2
+                            ..p = 16)
+                          : (n.Button.elevatedIcon("Stop Recording".n,
+                              n.Icon(Icons.fiber_manual_record))
+                            ..visible = robotState.hasAction(
+                                "mower_logic:area_recording/stop_recording")
+                            ..onPressed = () {
+                              controller.callAction(
+                                  "mower_logic:area_recording/stop_recording");
+                            }
+                            ..style = n.ButtonStyle(backgroundColor: Colors.red)
+                            ..expanded
+                            ..elevation = 2
+                            ..p = 16),
+                      n.Button.elevatedIcon("Finish Area".n, n.Icon(Icons.stop),
+                          onPressed: () {
+                        n.showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (context) => buildSaveAreaDialog());
+                      })
+                        ..enable = robotState
+                            .hasAnyAction(["mower_logic:area_recording/finish_navigation_area","mower_logic:area_recording/finish_mowing_area","mower_logic:area_recording/finish_discard"])
+                        ..elevation = 2
+                        ..p = 16,
+                    ])
+                      ..gap = 8
+                      ..px = 16
+                      ..py = 8,
+                    n.Row([
+                      n.Button.elevatedIcon(
+                          "Record Docking".n, n.Icon(Icons.home))
+                        ..enable = robotState
+                            .hasAction("mower_logic:area_recording/record_dock")
+                        ..onPressed = () {
+                          controller.callAction(
+                              "mower_logic:area_recording/record_dock");
+                        }
+                        ..elevation = 2
+                        ..expanded
+                        ..p = 16,
+                      n.Button.elevatedIcon(
+                          "Exit Recording Mode".n, n.Icon(Icons.exit_to_app))
+                        ..enable = robotState.hasAction(
+                            "mower_logic:area_recording/exit_recording_mode")
+                        ..onPressed = () {
+                          controller.callAction(
+                              "mower_logic:area_recording/exit_recording_mode");
+                        }
+                        ..elevation = 2
+                        ..expanded
+                        ..p = 16,
+                    ])
+                      ..gap = 8
+                      ..px = 16
+                      ..py = 8,
+                  ])..py=8)),
         ]),
         const RobotStateWidget(),
       ],
