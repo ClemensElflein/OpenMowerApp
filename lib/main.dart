@@ -72,7 +72,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: "/",
       getPages: [
-        GetPage(name: "/", page: () => const MainScreen())
+        GetPage(name: "/", page: () => MainScreen())
       ],
     );
   }

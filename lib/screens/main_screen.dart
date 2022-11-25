@@ -8,10 +8,10 @@ import 'package:open_mower_app/screens/remote_control.dart';
 import 'package:open_mower_app/views/logo_widget.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  MainScreen({super.key});
 
-  final widgetList = const <Widget>[
-    Dashboard(),RemoteControl(),SensorValues(),Settings()
+  final widgetList = <Widget>[
+    Dashboard(),RemoteControl(),const SensorValues(),const Settings()
   ];
 
   @override

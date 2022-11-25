@@ -7,19 +7,7 @@ class RobotStateController extends GetxController {
 
   final map = MapModel().obs;
 
-  @override
-  void onInit() {
-    // TODO: implement onInit
-    super.onInit();
-    print("RSC ON INIT");
-  }
-
-  @override
-  void onClose() {
-    // TODO: implement onClose
-    super.onClose();
-    print("RSC ON CLOSE");
-  }
+  var availableActions = <String>{}.obs;
 
   void start() {
     robotState.value.isRunning = true;
@@ -34,6 +22,10 @@ class RobotStateController extends GetxController {
   void setConnected(bool isConnected) {
     robotState.value.isConnected = isConnected;
     robotState.refresh();
+  }
+
+  bool hasAction(String action) {
+    return availableActions.contains(action);
   }
 
 }

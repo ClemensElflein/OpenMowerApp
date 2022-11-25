@@ -172,6 +172,17 @@ class MqttConnection  {
     sensorsController.sensorStates.refresh();
   }
 
+  void parseActionInfos(obj) {
+      final Set<String> newActionSet = {};
+      for(final action in obj["d"]) {
+        if(action["enabled"] > 0) {
+          newActionSet.add(action["action_id"]);
+        }
+      }
+
+      robotStateController.availableActions.value = newActionSet;
+  }
+
   void onConnected() {
     print("MQTT connected");
     robotStateController.setConnected(true);
@@ -182,6 +193,15 @@ class MqttConnection  {
           // print("got message on ${msg.topic}");
           final payload = msg.payload as MqttPublishMessage;
           switch(msg.topic) {
+            case "actions/bson": {
+              final bytes = payload.payload.message?.toList(growable: false);
+              if(bytes == null || bytes.isBlank == true) {
+                continue;
+              }
+              final object = BSON().deserialize(BsonBinary.from(bytes));
+              parseActionInfos(object);
+            }
+            break;
             case "map/bson": {
               final bytes = payload.payload.message?.toList(growable: false);
               if(bytes == null || bytes.isBlank == true) {
@@ -233,6 +253,7 @@ class MqttConnection  {
       }
     });
 
+    client.subscribe("actions/bson", MqttQos.atLeastOnce);
     client.subscribe("map/bson", MqttQos.atLeastOnce);
     client.subscribe("sensor_infos/bson", MqttQos.atLeastOnce);
     client.subscribe("robot_state/bson", MqttQos.atMostOnce);
@@ -257,9 +278,9 @@ class MqttConnection  {
     if(mqttclient.isWebSocket()) {
       client.server = "ws://${settingsController.hostname}/";
     } else{
-      client.server = settingsController.hostname;
+      client.server = settingsController.hostname.value;
     }
-    client.port = settingsController.mqttPort;
+    client.port = settingsController.mqttPort.value;
 
 
     final connMess = MqttConnectMessage()
@@ -291,6 +312,16 @@ class MqttConnection  {
     }
     print("trying reconnect MQTT");
     connect();
+  }
+
+  void callAction(String action) {
+    final builder = MqttPayloadBuilder();
+    builder.addString(action);
+    try {
+      client.publishMessage("/action", MqttQos.exactlyOnce, builder.payload!);
+    } catch(e) {
+      print("error publishing to mqtt");
+    }
   }
 
 }
