@@ -6,6 +6,7 @@ import 'package:open_mower_app/screens/sensor_values.dart';
 import 'package:open_mower_app/screens/settings.dart';
 import 'package:open_mower_app/screens/remote_control.dart';
 import 'package:open_mower_app/views/logo_widget.dart';
+import 'package:open_mower_app/views/logo_widget_drawer.dart';
 
 class MainScreen extends StatefulWidget {
   MainScreen({super.key});
@@ -43,7 +44,10 @@ class _MainScreenState extends State<MainScreen> {
                 decoration: BoxDecoration(
                   color: Colors.blue,
                 ),
-                child: Text('Drawer Header'),
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                    child: FittedBox(
+                  child: LogoWidgetDrawer(size: 0.1))),
               ),
               ListTile(
                 leading: n.Icon(Icons.speed),
