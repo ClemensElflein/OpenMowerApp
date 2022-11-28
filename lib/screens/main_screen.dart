@@ -11,7 +11,7 @@ class MainScreen extends StatefulWidget {
   MainScreen({super.key});
 
   final widgetList = <Widget>[
-    Dashboard(),RemoteControl(),const SensorValues(),const Settings()
+    Dashboard(),const SensorValues(),const Settings()
   ];
 
   @override

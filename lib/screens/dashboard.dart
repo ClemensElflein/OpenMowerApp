@@ -1,9 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:get/get.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:open_mower_app/controllers/remote_controller.dart';
 import 'package:open_mower_app/controllers/robot_state_controller.dart';
+import 'package:open_mower_app/models/joystick_command.dart';
 import 'package:open_mower_app/screens/remote_control.dart';
 import 'package:open_mower_app/views/map_widget.dart';
 import 'package:open_mower_app/views/robot_state_widget.dart';
@@ -15,11 +17,11 @@ class Dashboard extends GetView<RobotStateController> {
 
   @override
   Widget build(BuildContext context) {
-    return n.Stack(
-      [
+    return n.Column([
+      const RobotStateWidget(),
+      n.Stack([
         const MapWidget(centerOnRobot: false),
         n.Column([
-          n.Column([
             Card(
               elevation: 3,
               child: n.Column([
@@ -34,12 +36,10 @@ class Dashboard extends GetView<RobotStateController> {
           ])
             ..p = 16
             ..expanded,
-          Material(elevation: 5, child: Obx(() => getButtonPanel(context, controller)))
-        ])
-          ..mt = 60,
-        const RobotStateWidget(),
-      ],
-    )..fullSize;
+      ])
+        ..expanded,
+      Material(elevation: 5, child: Obx(() => getButtonPanel(context, controller)))
+    ]);
   }
 
   Widget getButtonPanel(BuildContext context, RobotStateController controller) {
@@ -66,6 +66,7 @@ class Dashboard extends GetView<RobotStateController> {
               ..onPressed = () {
                 remoteControl.callAction("mower_logic:mowing/pause");
               }
+              ..expanded
               ..elevation = 2
               ..p = 16),
         n.Button.elevatedIcon("Stop".n, n.Icon(Icons.home))
@@ -89,6 +90,17 @@ class Dashboard extends GetView<RobotStateController> {
         ..p = 16;
     } else {
       return n.Column([
+        Padding(padding: EdgeInsets.all(30), child:
+        Joystick(
+          mode: JoystickMode.all,
+          onStickDragEnd: () {
+            remoteControl.sendMessage(0, 0);
+          },
+          listener: (details) {
+            remoteControl.joystickCommand.value =
+                JoystickCommand(-details.y * 1.0, -details.x * 1.6);
+          },
+        )),
         n.Row([
           !controller.hasAction("mower_logic:area_recording/stop_recording")
               ? (n.Button.elevatedIcon(
@@ -137,7 +149,8 @@ class Dashboard extends GetView<RobotStateController> {
             ..enable =
                 controller.hasAction("mower_logic:area_recording/record_dock")
             ..onPressed = () {
-              remoteControl.callAction("mower_logic:area_recording/record_dock");
+              remoteControl
+                  .callAction("mower_logic:area_recording/record_dock");
             }
             ..elevation = 2
             ..expanded
@@ -162,15 +175,14 @@ class Dashboard extends GetView<RobotStateController> {
     }
   }
 
-
   Widget buildSaveAreaDialog() {
     return n.Alert.adaptive()
       ..title = "Save Area".n
       ..content = "Save area as navigation area or as mowing area?".n
       ..actions = [
         n.Button("Mowing Area".n)
-        // ..enable = robotState
-        //     .hasAction("mower_logic:area_recording/finish_mowing_area")
+          // ..enable = robotState
+          //     .hasAction("mower_logic:area_recording/finish_mowing_area")
           ..onPressed = () {
             remoteControl
                 .callAction("mower_logic:area_recording/finish_mowing_area");
@@ -179,8 +191,8 @@ class Dashboard extends GetView<RobotStateController> {
           ..bold
           ..p = 24,
         n.Button("Navigation Area".n)
-        // ..enable = robotState
-        //     .hasAction("mower_logic:area_recording/finish_navigation_area")
+          // ..enable = robotState
+          //     .hasAction("mower_logic:area_recording/finish_navigation_area")
           ..onPressed = () {
             remoteControl.callAction(
                 "mower_logic:area_recording/finish_navigation_area");
@@ -190,7 +202,8 @@ class Dashboard extends GetView<RobotStateController> {
           ..p = 24,
         n.Button("Don't Save".n)
           ..onPressed = () {
-            remoteControl.callAction("mower_logic:area_recording/finish_discard");
+            remoteControl
+                .callAction("mower_logic:area_recording/finish_discard");
             Get.back();
           }
           ..bold

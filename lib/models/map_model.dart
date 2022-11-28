@@ -3,7 +3,7 @@ import 'dart:ui';
 class MapModel {
     final List<MapAreaModel> navigationAreas = [];
     final List<MapAreaModel> mowingAreas = [];
-    double width = 0, height = 0, centerX = 0, centerY = 0;
+    double width = 0, height = 0, centerX = 0, centerY = 0, dockX = 0, dockY = 0, dockHeading = 0;
 }
 
 class MapAreaModel {

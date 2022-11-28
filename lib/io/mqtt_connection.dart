@@ -113,7 +113,10 @@ class MqttConnection  {
     mapModel.width =   obj["d"]["meta"]["mapWidth"] ?? 0;
     mapModel.height =  obj["d"]["meta"]["mapHeight"] ?? 0;
     mapModel.centerX = obj["d"]["meta"]["mapCenterX"] ?? 0;
-    mapModel.centerY = obj["d"]["meta"]["mapCenterY"] ?? 0;
+    mapModel.centerY = -obj["d"]["meta"]["mapCenterY"] ?? 0;
+    mapModel.dockX =       obj["d"]["docking_pose"]["x"] ?? 0;
+    mapModel.dockY =       -obj["d"]["docking_pose"]["y"] ?? 0;
+    mapModel.dockHeading = obj["d"]["docking_pose"]["heading"] ?? 0;
 
     final wa = obj["d"]["working_areas"];
     if(wa != null) {
@@ -128,7 +131,7 @@ class MqttConnection  {
       }
     }
 
-    print("Got a map with ${mapModel.mowingAreas.length} mowing areas and ${mapModel.navigationAreas.length} navigation areas. Size: ${mapModel.width} x ${mapModel.height}");
+    print("Got a map with ${mapModel.mowingAreas.length} mowing areas and ${mapModel.navigationAreas.length} navigation areas. Size: ${mapModel.width} x ${mapModel.height}. Docking pos: ${mapModel.dockX}, ${mapModel.dockY}");
 
     final RobotStateController robotStateController = Get.find();
     robotStateController.map.value = mapModel;
