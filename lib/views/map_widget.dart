@@ -6,11 +6,14 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:open_mower_app/models/map_model.dart';
+import 'package:open_mower_app/models/map_overlay_model.dart';
 import 'package:open_mower_app/models/robot_state.dart';
 
 
 class MapWidget extends GetView<RobotStateController> {
-  const MapWidget({super.key});
+  const MapWidget({super.key, required this.centerOnRobot});
+
+  final bool centerOnRobot;
 
   // load the image async and then draw with `canvas.drawImage(image, Offset.zero, Paint());`
   Future<ui.Image> loadImageAsset(String assetName) async {
@@ -22,6 +25,8 @@ class MapWidget extends GetView<RobotStateController> {
   Widget build(BuildContext context) {
 
     return InteractiveViewer(
+        panEnabled: !centerOnRobot,
+        scaleEnabled: !centerOnRobot,
         maxScale: 10.0,
         minScale: 0.1,
         child: SizedBox(
@@ -29,14 +34,15 @@ class MapWidget extends GetView<RobotStateController> {
             height: double.infinity,
             child: RepaintBoundary(child:Obx(() => CustomPaint(
                   isComplex: true,
-                  painter: MapPainter(controller.map.value, controller.robotState.value),
+                  painter: MapPainter(controller.map.value, controller.mapOverlay.value, controller.robotState.value, centerOnRobot),
                 )))));
   }
 }
 
 
 class MapPainter extends CustomPainter {
-  MapPainter(this.mapModel, this.robotState) {
+  MapPainter(this.mapModel, this.mapOverlayModel, this.robotState, this.centerOnRobot) {
+    // "robot" arrow
     path_0.reset();
     path_0.moveTo(0.1979167,0.8750000);
     path_0.lineTo(0.1666667,0.8437500);
@@ -50,7 +56,9 @@ class MapPainter extends CustomPainter {
   }
 
   final MapModel mapModel;
+  final MapOverlayModel mapOverlayModel;
   final RobotState robotState;
+  final bool centerOnRobot;
 
   final _backgroundPaint = Paint()
     ..color = const Color.fromRGBO(0, 0, 0, 0.1)
@@ -133,8 +141,13 @@ class MapPainter extends CustomPainter {
       return;
     }
 
-    final mapScale = min(drawingRect.width / mapModel.width,
-        drawingRect.height / mapModel.height);
+
+    double mapScale = 80;
+
+    if(!centerOnRobot) {
+      mapScale = min(drawingRect.width / mapModel.width,
+          drawingRect.height / mapModel.height);
+    }
 
 
 
@@ -143,6 +156,12 @@ class MapPainter extends CustomPainter {
             (drawingRect.width - mapModel.width * mapScale) / 2.0,
         drawingRect.topLeft.dy +
             (drawingRect.height - mapModel.height * mapScale) / 2.0);
+
+    if(centerOnRobot) {
+      // move it up a little so that it's not in the way of the joystick.
+      canvas.translate(0, -drawingRect.height / 3);
+    }
+
     canvas.scale(mapScale);
 
     /* draw map outline
@@ -158,8 +177,21 @@ class MapPainter extends CustomPainter {
           ..style = PaintingStyle.stroke);
     */
 
-    canvas.translate(mapModel.width / 2 - mapModel.centerX,
-        mapModel.height / 2 + mapModel.centerY);
+    if(!centerOnRobot) {
+      // fit map to the center
+      canvas.translate(mapModel.width / 2 - mapModel.centerX,
+          mapModel.height / 2 + mapModel.centerY);
+    } else {
+      // center on robot
+      canvas.translate(mapModel.width / 2 - robotState.posX,
+          mapModel.height / 2 -robotState.posY);
+      // canvas.rotate((robotState.heading - pi/2) % (2.0*pi));
+      // canvas.translate(, );
+    }
+
+    // if(centerOnRobot) {
+
+    // }
 
 
 
@@ -201,6 +233,9 @@ class MapPainter extends CustomPainter {
     axes.lineTo(startX + width, 0);
     axes.moveTo(0, startY.toDouble());
     axes.lineTo(0, startY + height);
+
+
+
 
     canvas.drawPath(grid, _coordinateLinesPaint);
     canvas.drawPath(axes, _coordinateLinesPaintOrigin);
@@ -260,6 +295,11 @@ class MapPainter extends CustomPainter {
       }
     }
 
+    // draw overlays
+    for(final overlay in mapOverlayModel.polygons) {
+      canvas.drawPath(overlay.overlay, getOverlayPaint(overlay));
+    }
+
     canvas.translate(robotState.posX, robotState.posY);
     // canvas.drawCircle(Offset.zero, 0.3, Paint()..color = Colors.blueAccent.withOpacity(0.8) ..style = PaintingStyle.fill);
     canvas.drawCircle(Offset.zero, 0.3, Paint()..color = Colors.blueAccent.withOpacity(0.4) ..style = PaintingStyle.fill);
@@ -271,6 +311,27 @@ class MapPainter extends CustomPainter {
       canvas.translate(-0.5, -0.5);
       canvas.drawPath(path_0, _robotPaint);
     }
+  }
+
+  Paint getOverlayPaint(OverlayPolygon overlay) {
+    final p = Paint()
+      ..color=Colors.black45
+      ..style=PaintingStyle.stroke
+      ..strokeWidth=overlay.lineWidth;
+
+    switch(overlay.color) {
+      case "red":
+        p.color = Colors.red;
+        break;
+      case "green":
+        p.color = Colors.lightGreenAccent;
+      break;
+      case "blue":
+        p.color = Colors.blueAccent;
+      break;
+
+    }
+    return p;
   }
 
   @override

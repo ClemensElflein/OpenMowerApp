@@ -1,11 +1,13 @@
 import 'package:get/get.dart';
 import 'package:open_mower_app/models/map_model.dart';
+import 'package:open_mower_app/models/map_overlay_model.dart';
 import 'package:open_mower_app/models/robot_state.dart';
 
 class RobotStateController extends GetxController {
   final robotState = RobotState().obs;
 
   final map = MapModel().obs;
+  final mapOverlay = MapOverlayModel().obs;
 
   var availableActions = <String>{}.obs;
 

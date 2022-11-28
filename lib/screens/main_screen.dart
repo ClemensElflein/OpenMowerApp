@@ -56,22 +56,12 @@ class _MainScreenState extends State<MainScreen> {
                 },
               ),
               ListTile(
-                leading: n.Icon(Icons.gamepad),
-                title: const Text('Remote Control'),
-                onTap: () {
-                  Get.back();
-                  setState(() {
-                    _index = 1;
-                  });
-                },
-              ),
-              ListTile(
                 leading: n.Icon(Icons.line_axis),
                 title: const Text('Sensor Values'),
                 onTap: () {
                   Get.back();
                   setState(() {
-                    _index = 2;
+                    _index = 1;
                   });
                 },
               ),
@@ -81,7 +71,7 @@ class _MainScreenState extends State<MainScreen> {
                 onTap: () {
                   Get.back();
                   setState(() {
-                    _index = 3;
+                    _index = 2;
                   });
                 },
               ),

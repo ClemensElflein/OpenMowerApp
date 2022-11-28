@@ -54,7 +54,7 @@ class RemoteControl extends GetView<RemoteController> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const MapWidget(),
+        const MapWidget(centerOnRobot: true),
         n.Column([
           Expanded(
               child: Align(
@@ -73,6 +73,17 @@ class RemoteControl extends GetView<RemoteController> {
           Material(
               elevation: 5,
               child: Obx(() => n.Column([
+                /*Padding(padding: const EdgeInsets.all(32), child:
+                Joystick(
+                  mode: JoystickMode.all,
+                  onStickDragEnd: () {
+                    controller.sendMessage(0, 0);
+                  },
+                  listener: (details) {
+                    controller.joystickCommand.value =
+                        JoystickCommand(-details.y * 1.0, -details.x * 1.6);
+                  },
+                )),*/
                     n.Row([
                       !robotState.hasAction(
                               "mower_logic:area_recording/stop_recording")

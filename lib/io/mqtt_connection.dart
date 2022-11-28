@@ -4,6 +4,7 @@ import 'package:open_mower_app/controllers/sensors_controller.dart';
 import 'package:open_mower_app/models/map_model.dart';
 import 'package:open_mower_app/models/robot_state.dart';
 import 'package:open_mower_app/models/sensor_state.dart';
+import 'package:open_mower_app/models/map_overlay_model.dart';
 
 import 'server.dart' if (dart.library.html) 'browser.dart' as mqttclient;
 import 'package:get/get.dart';
@@ -134,6 +135,33 @@ class MqttConnection  {
     robotStateController.map.refresh();
   }
 
+  void parseMapOverlay(obj) {
+    final overlayModel = MapOverlayModel();
+    final polys = obj["d"]["polygons"];
+    if(polys != null) {
+      for(final poly in polys) {
+        bool first = true;
+        Path path = Path();
+        for (final pt in poly["poly"]) {
+          if (first) {
+            path.moveTo(pt["x"], -pt["y"]);
+            first = false;
+          } else {
+            path.lineTo(pt["x"], -pt["y"]);
+          }
+        }
+        if(path.isBlank != true && poly["is_closed"] > 0) {
+          path.close();
+        }
+        overlayModel.polygons.add(OverlayPolygon(path, poly["is_closed"] > 0, poly["line_width"], poly["color"]));
+      }
+    }
+
+
+    robotStateController.mapOverlay.value = overlayModel;
+    robotStateController.mapOverlay.refresh();
+  }
+
   void parseRobotState(obj) {
     RobotState state = RobotState();
     state.isConnected = true;
@@ -143,6 +171,8 @@ class MqttConnection  {
     state.posAccuracy = obj["d"]["pose"]["pos_accuracy"];
     state.headingAccuracy = obj["d"]["pose"]["heading_accuracy"];
     state.headingValid = obj["d"]["pose"]["heading_valid"] > 0;
+    state.isEmergency = obj["d"]["emergency"] > 0;
+    state.isCharging = obj["d"]["is_charging"] > 0;
     state.currentState = obj["d"]["current_state"];
     state.gpsPercent = obj["d"]["gps_percentage"];
     robotStateController.robotState.value = state;
@@ -212,6 +242,15 @@ class MqttConnection  {
               parseMap(object);
             }
             break;
+            case "map_overlay/bson": {
+              final bytes = payload.payload.message?.toList(growable: false);
+              if(bytes == null || bytes.isBlank == true) {
+                continue;
+              }
+              final object = BSON().deserialize(BsonBinary.from(bytes));
+              parseMapOverlay(object);
+            }
+            break;
             case "robot_state/bson": {
               // Got the robot state
               final bytes = payload.payload.message?.toList(growable: false);
@@ -254,8 +293,9 @@ class MqttConnection  {
       }
     });
 
-    client.subscribe("actions/bson", MqttQos.atLeastOnce);
+    client.subscribe("actions/bson", MqttQos.exactlyOnce);
     client.subscribe("map/bson", MqttQos.atLeastOnce);
+    client.subscribe("map_overlay/bson", MqttQos.atMostOnce);
     client.subscribe("sensor_infos/bson", MqttQos.atLeastOnce);
     client.subscribe("robot_state/bson", MqttQos.atMostOnce);
     client.subscribe("robot_state/bson", MqttQos.atMostOnce);
