@@ -1,4 +1,5 @@
 
+import 'package:flutter/foundation.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:open_mower_app/controllers/sensors_controller.dart';
 import 'package:open_mower_app/models/map_model.dart';
@@ -178,6 +179,7 @@ class MqttConnection  {
     state.isCharging = obj["d"]["is_charging"] > 0;
     state.currentState = obj["d"]["current_state"];
     state.gpsPercent = obj["d"]["gps_percentage"];
+    state.batteryPercent = obj["d"]["battery_percentage"];
     robotStateController.robotState.value = state;
   }
 
@@ -319,12 +321,25 @@ class MqttConnection  {
 
     client.disconnect();
 
-    if(mqttclient.isWebSocket()) {
-      client.server = "ws://${settingsController.hostname}/";
-    } else{
-      client.server = settingsController.hostname.value;
+
+    if(kIsWeb && kReleaseMode) {
+      // Connect according to settings
+      if(mqttclient.isWebSocket()) {
+        client.server = "ws://${Uri.base.host}/";
+      } else{
+        client.server = Uri.base.host;
+      }
+      client.port = 9001;
+    } else {
+      // Connect according to settings
+      if(mqttclient.isWebSocket()) {
+        client.server = "ws://${settingsController.hostname}/";
+      } else{
+        client.server = settingsController.hostname.value;
+      }
+      client.port = settingsController.mqttPort.value;
     }
-    client.port = settingsController.mqttPort.value;
+
 
 
     final connMess = MqttConnectMessage()

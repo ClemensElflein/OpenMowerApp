@@ -34,7 +34,7 @@ dependencies:
   niku: ^2.3.1
   get: ^4.6.5
   auto_size_text: ^3.0.0
-  flutter_joystick: ^0.0.2
+#  flutter_joystick: ^0.0.2
   get_storage: ^2.0.3
   mqtt5_client: ^3.3.3
   bson: ^3.0.0
