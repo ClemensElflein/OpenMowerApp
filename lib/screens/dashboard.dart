@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:get/get.dart';
@@ -6,7 +5,6 @@ import 'package:niku/namespace.dart' as n;
 import 'package:open_mower_app/controllers/remote_controller.dart';
 import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/models/joystick_command.dart';
-import 'package:open_mower_app/screens/remote_control.dart';
 import 'package:open_mower_app/views/map_widget.dart';
 import 'package:open_mower_app/views/robot_state_widget.dart';
 
@@ -18,24 +16,9 @@ class Dashboard extends GetView<RobotStateController> {
   @override
   Widget build(BuildContext context) {
     return n.Column([
-      const RobotStateWidget(),
       n.Stack([
         const MapWidget(centerOnRobot: false),
-        n.Column([
-            Card(
-              elevation: 3,
-              child: n.Column([
-                "Current State:".bodyLarge..m = 4,
-                Obx(() => controller.robotState.value.currentState.h4..m = 4)
-              ])
-                ..p = 16
-                ..mainAxisAlignment = MainAxisAlignment.start
-                ..crossAxisAlignment = CrossAxisAlignment.start
-                ..fullWidth,
-            ),
-          ])
-            ..p = 16
-            ..expanded,
+        const RobotStateWidget(),
       ])
         ..expanded,
       Material(elevation: 5, child: Obx(() => getButtonPanel(context, controller)))
@@ -69,6 +52,14 @@ class Dashboard extends GetView<RobotStateController> {
               ..expanded
               ..elevation = 2
               ..p = 16),
+        n.Button.elevatedIcon("Skip area".n, n.Icon(Icons.route))
+          ..visible = controller.hasAction("mower_logic:mowing/skip_area")
+          ..onPressed = () {
+            remoteControl.callAction("mower_logic:mowing/skip_area");
+          }
+          ..style = n.ButtonStyle(backgroundColor: Colors.orangeAccent)
+          ..elevation = 2
+          ..p = 16,
         n.Button.elevatedIcon("Stop".n, n.Icon(Icons.home))
           ..enable = controller.hasAction("mower_logic:mowing/abort_mowing")
           ..onPressed = () {
@@ -90,17 +81,18 @@ class Dashboard extends GetView<RobotStateController> {
         ..p = 16;
     } else {
       return n.Column([
-        Padding(padding: EdgeInsets.all(30), child:
-        Joystick(
-          mode: JoystickMode.all,
-          onStickDragEnd: () {
-            remoteControl.sendMessage(0, 0);
-          },
-          listener: (details) {
-            remoteControl.joystickCommand.value =
-                JoystickCommand(-details.y * 1.0, -details.x * 1.6);
-          },
-        )),
+        Padding(
+            padding: EdgeInsets.all(30),
+            child: Joystick(
+              mode: JoystickMode.all,
+              onStickDragEnd: () {
+                remoteControl.sendMessage(0, 0);
+              },
+              listener: (details) {
+                remoteControl.joystickCommand.value =
+                    JoystickCommand(-details.y * 1.0, -details.x * 1.6);
+              },
+            )),
         n.Row([
           !controller.hasAction("mower_logic:area_recording/stop_recording")
               ? (n.Button.elevatedIcon(

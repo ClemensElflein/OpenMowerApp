@@ -7,7 +7,7 @@ class RobotState {
   double batteryPercent = 0.0;
 
   String currentState = "Unknown";
-  String currentSubState = "Unknown";
+  String currentSubState = "";
 
   bool isRunning = false;
   bool isCharging = false;

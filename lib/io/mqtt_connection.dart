@@ -177,7 +177,9 @@ class MqttConnection  {
     state.isEmergency = obj["d"]["emergency"] > 0;
     state.isCharging = obj["d"]["is_charging"] > 0;
     state.currentState = obj["d"]["current_state"];
+    state.currentSubState = obj["d"]["current_sub_state"];
     state.gpsPercent = obj["d"]["gps_percentage"];
+    state.batteryPercent = obj["d"]["battery_percentage"];
     robotStateController.robotState.value = state;
   }
 
