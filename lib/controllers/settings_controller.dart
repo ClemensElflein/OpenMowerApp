@@ -38,11 +38,10 @@ class SettingsController extends GetxController {
     mqttPassword.value = mqttPasswordController.text;
     mqttPort.value = int.tryParse(mqttPortController.text) ?? 1883;
 
-    box.write("mqtt_hostname", hostname);
-    box.write("mqtt_username", mqttUsername);
-    box.write("mqtt_password", mqttPassword);
-    box.write("mqtt_port", mqttPort);
-    box.save();
+    box.write("mqtt_hostname", hostname.string);
+    box.write("mqtt_username", mqttUsername.string);
+    box.write("mqtt_password", mqttPassword.string);
+    box.write("mqtt_port", mqttPort.toInt());
 
     hostnameController.text = hostname.value;
     mqttUsernameController.text = mqttUsername.value;
