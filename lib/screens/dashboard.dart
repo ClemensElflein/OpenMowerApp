@@ -28,7 +28,9 @@ class Dashboard extends GetView<RobotStateController> {
             elevation: 3,
             child: n.Column([
               "Current State:".bodyLarge..m = 4,
-              Obx(() => Text(controller.robotState.value.currentState, style: Theme.of(context).textTheme.headlineMedium).niku
+              Obx(() => Text(controller.robotState.value.currentState,
+                      style: Theme.of(context).textTheme.headlineMedium)
+                  .niku
                 ..m = 4)
             ])
               ..p = 16
@@ -38,6 +40,20 @@ class Dashboard extends GetView<RobotStateController> {
           ),
         ])
           ..p = 16,
+    Obx(()=>(controller.robotState.value.currentState == "AREA_RECORDING") ?
+        Container(
+            padding: const EdgeInsets.all(30.0),
+            alignment: Alignment.bottomCenter,
+            child: Joystick(
+              mode: JoystickMode.all,
+              onStickDragEnd: () {
+                remoteControl.sendMessage(0, 0);
+              },
+              listener: (details) {
+                remoteControl.joystickCommand.value =
+                    JoystickCommand(-details.y * 1.0, -details.x * 1.6);
+              },
+            )) : n.Row([])),
       ])
         ..expanded,
       Material(
@@ -92,12 +108,10 @@ class Dashboard extends GetView<RobotStateController> {
         ..gap = 8
         ..p = 16;
     } else {
-      return
-        n.Column([n.Row([
-          n.Column([
-            n.Row([
-              !controller.hasAction("mower_logic:area_recording/stop_recording")
-                  ? (n.Button.elevatedIcon(
+      return n.Column([
+        n.Row([
+          !controller.hasAction("mower_logic:area_recording/stop_recording")
+              ? (n.Button.elevatedIcon(
                   "Start Recording".n, n.Icon(Icons.fiber_manual_record))
                 ..enable = controller
                     .hasAction("mower_logic:area_recording/start_recording")
@@ -108,7 +122,7 @@ class Dashboard extends GetView<RobotStateController> {
                 ..expanded
                 ..elevation = 2
                 ..p = 16)
-                  : (n.Button.elevatedIcon(
+              : (n.Button.elevatedIcon(
                   "Stop Recording".n, n.Icon(Icons.fiber_manual_record))
                 ..visible = controller
                     .hasAction("mower_logic:area_recording/stop_recording")
@@ -120,67 +134,52 @@ class Dashboard extends GetView<RobotStateController> {
                 ..expanded
                 ..elevation = 2
                 ..p = 16),
-              n.Button.elevatedIcon("Finish Area".n, n.Icon(Icons.stop),
-                  onPressed: () {
-                    n.showDialog(
-                        barrierDismissible: false,
-                        context: context,
-                        builder: (context) => buildSaveAreaDialog());
-                  })
-                ..enable = controller.hasAnyAction([
-                  "mower_logic:area_recording/finish_navigation_area",
-                  "mower_logic:area_recording/finish_mowing_area",
-                  "mower_logic:area_recording/finish_discard"
-                ])
-                ..elevation = 2
-                ..p = 16,
+          n.Button.elevatedIcon("Finish Area".n, n.Icon(Icons.stop),
+              onPressed: () {
+            n.showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (context) => buildSaveAreaDialog());
+          })
+            ..enable = controller.hasAnyAction([
+              "mower_logic:area_recording/finish_navigation_area",
+              "mower_logic:area_recording/finish_mowing_area",
+              "mower_logic:area_recording/finish_discard"
             ])
-              ..gap = 8
-              ..px = 16
-              ..py = 8,
-            n.Row([
-              n.Button.elevatedIcon("Record Docking".n, n.Icon(Icons.home))
-                ..enable =
-                controller.hasAction("mower_logic:area_recording/record_dock")
-                ..onPressed = () {
-                  remoteControl
-                      .callAction("mower_logic:area_recording/record_dock");
-                }
-                ..elevation = 2
-                ..expanded
-                ..p = 16,
-              n.Button.elevatedIcon(
-                  "Exit Recording Mode".n, n.Icon(Icons.exit_to_app))
-                ..enable = controller
-                    .hasAction("mower_logic:area_recording/exit_recording_mode")
-                ..onPressed = () {
-                  remoteControl
-                      .callAction("mower_logic:area_recording/exit_recording_mode");
-                }
-                ..elevation = 2
-                ..expanded
-                ..p = 16,
-            ])
-              ..gap = 8
-              ..px = 16
-              ..py = 8,
-          ])
-            ..py = 8
-          ..expanded,
-          Padding(
-              padding: EdgeInsets.all(30),
-              child: Joystick(
-                mode: JoystickMode.all,
-                onStickDragEnd: () {
-                  remoteControl.sendMessage(0, 0);
-                },
-                listener: (details) {
-                  remoteControl.joystickCommand.value =
-                      JoystickCommand(-details.y * 1.0, -details.x * 1.6);
-                },
-              )),
+            ..elevation = 2
+            ..p = 16,
         ])
-        ]);
+          ..gap = 8
+          ..px = 16
+          ..py = 8,
+        n.Row([
+          n.Button.elevatedIcon("Record Docking".n, n.Icon(Icons.home))
+            ..enable =
+                controller.hasAction("mower_logic:area_recording/record_dock")
+            ..onPressed = () {
+              remoteControl
+                  .callAction("mower_logic:area_recording/record_dock");
+            }
+            ..elevation = 2
+            ..expanded
+            ..p = 16,
+          n.Button.elevatedIcon(
+              "Exit Recording Mode".n, n.Icon(Icons.exit_to_app))
+            ..enable = controller
+                .hasAction("mower_logic:area_recording/exit_recording_mode")
+            ..onPressed = () {
+              remoteControl
+                  .callAction("mower_logic:area_recording/exit_recording_mode");
+            }
+            ..elevation = 2
+            ..expanded
+            ..p = 16,
+        ])
+          ..gap = 8
+          ..px = 16
+          ..py = 8,
+      ])
+        ..py = 8;
     }
   }
 
