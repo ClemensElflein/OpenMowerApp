@@ -64,7 +64,7 @@ class MqttConnection  {
     final buffer = Uint8Buffer();
     buffer.addAll(binary.byteList);
     try {
-      client.publishMessage("/teleop", high_qos ? MqttQos.atLeastOnce : MqttQos.atMostOnce, buffer);
+      client.publishMessage("teleop", high_qos ? MqttQos.atLeastOnce : MqttQos.atMostOnce, buffer);
     } catch(e) {
       print("error publishing to mqtt");
     }
@@ -377,7 +377,7 @@ class MqttConnection  {
     final builder = MqttPayloadBuilder();
     builder.addString(action);
     try {
-      client.publishMessage("/action", MqttQos.exactlyOnce, builder.payload!);
+      client.publishMessage("action", MqttQos.exactlyOnce, builder.payload!);
     } catch(e) {
       print("error publishing to mqtt");
     }
