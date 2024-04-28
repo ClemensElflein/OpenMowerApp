@@ -17,7 +17,7 @@ class Settings extends GetView<SettingsController> {
           builder: (val) => Card(
             elevation: 3,
                   child: n.Column([
-                "MQTT Settings".h6..mb = 8,
+                Text("MQTT Settings", style: Theme.of(context).textTheme.headlineMedium).niku..mb = 8,
                 n.TextFormField(
                     label: "Host".n, controller: controller.hostnameController),
                 n.TextFormField(

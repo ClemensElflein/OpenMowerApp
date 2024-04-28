@@ -1,4 +1,5 @@
 import 'package:bson/bson.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:open_mower_app/controllers/settings_controller.dart';
 import 'package:open_mower_app/io/mqtt_connection.dart';
@@ -36,7 +37,14 @@ class RemoteController extends GetxController {
   }
 
   void connectWebsocket() {
-    channel = WebSocketChannel.connect(Uri.parse('ws://${settingsController.hostname}:9002'));
+    if(kIsWeb && kReleaseMode) {
+      // Release and web, we can just connect to the root of the current URL
+      channel = WebSocketChannel.connect(Uri.parse('ws://${Uri.base.host}:9002'));
+    } else {
+      // Connect according to settings
+      channel = WebSocketChannel.connect(Uri.parse('ws://${settingsController.hostname}:9002'));
+    }
+
   }
 
   void sendMessage(double x, double r) {
@@ -47,7 +55,7 @@ class RemoteController extends GetxController {
     if(channel != null) {
       final map = {"vx": x,
         "vz": r};
-      final binary = BSON().serialize(map);
+      final binary = BsonCodec.serialize(map);
       channel?.sink.add(binary.byteList);
     }
   }

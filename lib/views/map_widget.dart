@@ -162,27 +162,24 @@ class MapPainter extends CustomPainter {
 */
 
     // don't try to draw map if it has size 0
-    if (mapModel.width == 0 || mapModel.height == 0) {
-      return;
-    }
+
+    double mapWidth = max(mapModel.width, 15);
+    double mapHeight = max(mapModel.height, 15);
+
 
     double mapScale = 80;
 
     if (!centerOnRobot) {
-      mapScale = min(drawingRect.width / mapModel.width,
-          drawingRect.height / mapModel.height);
+      mapScale = min(drawingRect.width / mapWidth,
+          drawingRect.height / mapHeight);
     }
 
     canvas.translate(
         drawingRect.topLeft.dx +
-            (drawingRect.width - mapModel.width * mapScale) / 2.0,
+            (drawingRect.width - mapWidth * mapScale) / 2.0,
         drawingRect.topLeft.dy +
-            (drawingRect.height - mapModel.height * mapScale) / 2.0);
+            (drawingRect.height - mapHeight * mapScale) / 2.0);
 
-    if (centerOnRobot) {
-      // move it up a little so that it's not in the way of the joystick.
-      canvas.translate(0, -drawingRect.height / 3);
-    }
 
     canvas.scale(mapScale);
 
@@ -190,9 +187,9 @@ class MapPainter extends CustomPainter {
     canvas.drawRect(
         // Rect.fromCenter(
         //     center: Offset(mapModel.centerX, mapModel.centerY),
-        //     width: mapModel.width,
-        //     height: mapModel.height),
-        Offset(0,0) & Size(mapModel.width, mapModel.height),
+        //     width: mapWidth,
+        //     height: mapHeight),
+        Offset(0,0) & Size(mapWidth, mapHeight),
         Paint()
           ..color = Colors.black
           ..strokeWidth = 0.1
@@ -201,28 +198,28 @@ class MapPainter extends CustomPainter {
 
     if (!centerOnRobot) {
       // fit map to the center
-      canvas.translate(mapModel.width / 2 - mapModel.centerX,
-          mapModel.height / 2 - mapModel.centerY);
+      canvas.translate(mapWidth / 2 - mapModel.centerX,
+          mapHeight / 2 - mapModel.centerY);
     } else {
       // center on robot
-      canvas.translate(mapModel.width / 2 - robotState.posX,
-          mapModel.height / 2 - robotState.posY);
+      canvas.translate(mapWidth / 2 - robotState.posX,
+          mapHeight / 2 - robotState.posY);
       // canvas.rotate((robotState.heading - pi/2) % (2.0*pi));
       // canvas.translate(, );
     }
 
-    final startX = ((-mapModel.width / 2 +
+    final startX = ((-mapWidth / 2 +
                     mapModel.centerX -
                     (drawingRect.topLeft.dx +
-                            (drawingRect.width - mapModel.width * mapScale) /
+                            (drawingRect.width - mapWidth * mapScale) /
                                 2.0) /
                         mapScale) /
                 5)
             .round() *
         5;
-    final startY = ((-(mapModel.height / 2 - mapModel.centerY) -
+    final startY = ((-(mapHeight / 2 - mapModel.centerY) -
                     (drawingRect.topLeft.dy +
-                            (drawingRect.height - mapModel.height * mapScale) /
+                            (drawingRect.height - mapHeight * mapScale) /
                                 2.0) /
                         mapScale) /
                 5)
@@ -299,7 +296,7 @@ class MapPainter extends CustomPainter {
 
     for (final area in mapModel.mowingAreas) {
       canvas.drawPath(area.outline, _mowFillPaint);
-      // grassPattern.paintOnPath(canvas, Size(mapModel.width, mapModel.height), area.outline);
+      // grassPattern.paintOnPath(canvas, Size(mapWidth, mapHeight), area.outline);
 
       canvas.drawPath(area.outline, _mowOutlinePaint);
       for (final obstacle in area.obstacles) {

@@ -31,13 +31,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  niku: ^2.3.1
+  niku: ^2.4.3
   get: ^4.6.5
   auto_size_text: ^3.0.0
   flutter_joystick: ^0.0.2
   get_storage: ^2.0.3
-  mqtt5_client: ^3.3.3
-  bson: ^3.0.0
+  mqtt5_client: ^4.2.2
+  bson: ^5.0.4
   web_socket_channel: ^2.2.0
 
   # The following adds the Cupertino Icons font to your application.
@@ -53,7 +53,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

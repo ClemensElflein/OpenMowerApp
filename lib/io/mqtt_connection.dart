@@ -1,4 +1,5 @@
 
+import 'package:flutter/foundation.dart';
 import 'package:mqtt5_client/mqtt5_client.dart';
 import 'package:open_mower_app/controllers/sensors_controller.dart';
 import 'package:open_mower_app/models/map_model.dart';
@@ -59,7 +60,7 @@ class MqttConnection  {
   void sendJoystick(double x, double r, bool high_qos) {
     final map = {"vx": x,
     "vz": r};
-    final binary = BSON().serialize(map);
+    final binary = BsonCodec.serialize(map);
     final buffer = Uint8Buffer();
     buffer.addAll(binary.byteList);
     try {
@@ -178,6 +179,7 @@ class MqttConnection  {
     state.isCharging = obj["d"]["is_charging"] > 0;
     state.currentState = obj["d"]["current_state"];
     state.gpsPercent = obj["d"]["gps_percentage"];
+    state.batteryPercent = obj["d"]["battery_percentage"];
     robotStateController.robotState.value = state;
   }
 
@@ -232,7 +234,7 @@ class MqttConnection  {
               if(bytes == null || bytes.isBlank == true) {
                 continue;
               }
-              final object = BSON().deserialize(BsonBinary.from(bytes));
+              final object = BsonCodec.deserialize(BsonBinary.from(bytes));
               parseActionInfos(object);
             }
             break;
@@ -241,7 +243,7 @@ class MqttConnection  {
               if(bytes == null || bytes.isBlank == true) {
                 continue;
               }
-              final object = BSON().deserialize(BsonBinary.from(bytes));
+              final object = BsonCodec.deserialize(BsonBinary.from(bytes));
               parseMap(object);
             }
             break;
@@ -250,7 +252,7 @@ class MqttConnection  {
               if(bytes == null || bytes.isBlank == true) {
                 continue;
               }
-              final object = BSON().deserialize(BsonBinary.from(bytes));
+              final object = BsonCodec.deserialize(BsonBinary.from(bytes));
               parseMapOverlay(object);
             }
             break;
@@ -260,7 +262,7 @@ class MqttConnection  {
               if(bytes == null || bytes.isBlank == true) {
                 continue;
               }
-              final object = BSON().deserialize(BsonBinary.from(bytes));
+              final object = BsonCodec.deserialize(BsonBinary.from(bytes));
               parseRobotState(object);
             }
             break;
@@ -270,7 +272,7 @@ class MqttConnection  {
               if(bytes == null || bytes.isBlank == true) {
                 continue;
               }
-              final object = BSON().deserialize(BsonBinary.from(bytes));
+              final object = BsonCodec.deserialize(BsonBinary.from(bytes));
               parseSensorInfos(object);
             }
             break;
@@ -284,7 +286,7 @@ class MqttConnection  {
                   if(bytes == null || bytes.isBlank == true) {
                     continue;
                   }
-                  final object = BSON().deserialize(BsonBinary.from(bytes));
+                  final object = BsonCodec.deserialize(BsonBinary.from(bytes));
                   parseSensorData(match[1], object);
                 } else {
                   print("got unknown message on topic: ${msg.topic}");
@@ -319,12 +321,25 @@ class MqttConnection  {
 
     client.disconnect();
 
-    if(mqttclient.isWebSocket()) {
-      client.server = "ws://${settingsController.hostname}/";
-    } else{
-      client.server = settingsController.hostname.value;
+
+    if(kIsWeb && kReleaseMode) {
+      // Connect according to settings
+      if(mqttclient.isWebSocket()) {
+        client.server = "ws://${Uri.base.host}/";
+      } else{
+        client.server = Uri.base.host;
+      }
+      client.port = 9001;
+    } else {
+      // Connect according to settings
+      if(mqttclient.isWebSocket()) {
+        client.server = "ws://${settingsController.hostname}/";
+      } else{
+        client.server = settingsController.hostname.value;
+      }
+      client.port = settingsController.mqttPort.value;
     }
-    client.port = settingsController.mqttPort.value;
+
 
 
     final connMess = MqttConnectMessage()
