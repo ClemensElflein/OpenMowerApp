@@ -2,7 +2,7 @@
 
 rm -rf ./build
 flutter clean
-flutter build web --web-renderer canvaskit
+flutter build web --web-renderer canvaskit --dart-define=FLUTTER_WEB_CANVASKIT_URL=/canvaskit/
 
 rm -rf ~/Dev/open_mower_ros/web
 
