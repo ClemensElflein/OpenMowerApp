@@ -7,14 +7,20 @@ import 'package:niku/namespace.dart' as n;
 class RobotStateWidget extends GetView<RobotStateController> {
   const RobotStateWidget({super.key});
 
-  IconData getGpsIcon(percent) {
-    if(percent > 0.75) {
-      return Icons.gps_fixed;
+  Icon getMqttIcon(bool isConnected) {
+    return isConnected
+        ? Icon(Icons.link, color: Colors.green[300])
+        : Icon(Icons.link_off, color: Colors.red[200]);
+  }
+
+  Icon getGpsIcon(percent) {
+    // TODO: Need gps_enabled flag for a reliable gps_not_fixed/gps_off icon
+    if (percent > 0.75) {
+      return Icon(Icons.gps_fixed, color: Colors.green[200]);
+    } else if (percent >= 0.25) {
+      return Icon(Icons.gps_not_fixed, color: Colors.orange[200]);
     }
-    if(percent >= 0.25) {
-      return Icons.gps_not_fixed;
-    }
-    return Icons.gps_off;
+    return Icon(Icons.gps_off, color: Colors.grey[400]);
   }
 
   @override
@@ -28,8 +34,7 @@ class RobotStateWidget extends GetView<RobotStateController> {
                   children: [
                 const TextSpan(text: "MQTT: "),
                 WidgetSpan(
-                    child:
-                        Icon(controller.robotState.value.isConnected ? Icons.link : Icons.link_off, color: Colors.black54),
+                    child: getMqttIcon(controller.robotState.value.isConnected),
                     alignment: PlaceholderAlignment.middle),
               ])),
           /*RichText(
@@ -48,7 +53,7 @@ class RobotStateWidget extends GetView<RobotStateController> {
                   children: [
                 const TextSpan(text: "GPS: "),
                 WidgetSpan(
-                    child: Obx(() => Icon(getGpsIcon(controller.robotState.value.gpsPercent), color: Colors.black54)),
+                    child: Obx(() => getGpsIcon(controller.robotState.value.gpsPercent)),
                     alignment: PlaceholderAlignment.middle),
               ])),
           RichText(
