@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:niku/namespace.dart' as n;
+import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/screens/dashboard.dart';
 import 'package:open_mower_app/screens/sensor_values.dart';
 import 'package:open_mower_app/screens/settings.dart';
@@ -9,21 +11,16 @@ import 'package:open_mower_app/screens/remote_control.dart';
 import 'package:open_mower_app/views/logo_widget.dart';
 import 'package:open_mower_app/views/logo_widget_drawer.dart';
 
-class MainScreen extends StatefulWidget {
+class MainScreen extends GetView<RobotStateController> {
   MainScreen({super.key});
 
   final widgetList = <Widget>[
     Dashboard(),const SensorValues(),const Settings()
   ];
 
-  @override
-  State<StatefulWidget> createState() => _MainScreenState();
-}
+  final _index = 0.obs;
 
-class _MainScreenState extends State<MainScreen> {
-
-  int _index = 0;
-
+  final RobotStateController robotStateController = Get.find();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,13 +34,14 @@ class _MainScreenState extends State<MainScreen> {
           // Add a ListView to the drawer. This ensures the user can scroll
           // through the options in the drawer if there isn't enough vertical
           // space to fit everything.
-          child: ListView(
-            // Important: Remove any padding from the ListView.
-            padding: EdgeInsets.zero,
-            children: buildDrawerList(),
-          ),
+          child: Column(children:<Widget>[
+            Expanded(child: ListView(
+              // Important: Remove any padding from the ListView.
+              padding: EdgeInsets.zero,
+              children: buildDrawerList(),
+            )), Obx(() => Text(robotStateController.softwareVersion.value).paddingAll(10))]),
         ),
-        body: widget.widgetList[_index]
+        body: Obx(()=>widgetList[_index.value])
     );
   }
 
@@ -63,9 +61,7 @@ class _MainScreenState extends State<MainScreen> {
         title: const Text('Dashboard'),
         onTap: () {
           Get.back();
-          setState(() {
-            _index = 0;
-          });
+          _index.value= 0;
         },
       ),
       ListTile(
@@ -73,9 +69,7 @@ class _MainScreenState extends State<MainScreen> {
         title: const Text('Sensor Values'),
         onTap: () {
           Get.back();
-          setState(() {
-            _index = 1;
-          });
+          _index.value= 1;
         },
       ),
     ];
@@ -87,14 +81,11 @@ class _MainScreenState extends State<MainScreen> {
         title: const Text('Settings'),
         onTap: () {
           Get.back();
-          setState(() {
-            _index = 2;
-          });
+          _index.value= 2;
         },
       ));
     }
 
     return drawerList;
   }
-
 }
