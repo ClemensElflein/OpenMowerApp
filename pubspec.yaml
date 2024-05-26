@@ -44,6 +44,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
+  # This icon package has the newer battery_charging_* icons included
+  material_design_icons_flutter: 7.0.7296
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
