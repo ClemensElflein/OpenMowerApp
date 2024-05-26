@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:get/get.dart';
 import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:niku/namespace.dart' as n;
@@ -62,7 +62,7 @@ class RobotStateWidget extends GetView<RobotStateController> {
                   children: [
                 const TextSpan(text: "Battery: "),
                 WidgetSpan(
-                    child: Icon(getBatteryIcon(controller.robotState.value.batteryPercent, controller.robotState.value.isCharging), color: Colors.black54),
+                    child: getBatteryIcon(controller.robotState.value.batteryPercent, controller.robotState.value.isCharging),
                     alignment: PlaceholderAlignment.middle),
               ]))
         ])
@@ -71,31 +71,57 @@ class RobotStateWidget extends GetView<RobotStateController> {
           ..gap = 8));
   }
 
-  IconData getBatteryIcon(double percentage, bool charging) {
-    if(charging && percentage > 0.875){
-      return Icons.battery_charging_full;
+  /* Place this ugly function last.
+   * Needs to be that ugly for not require --no-tree-shake-icons build option (Flutter >= 1.22),
+   * which would disable Icon subsetting and thus blow up our code by about 350k
+   */
+  Icon getBatteryIcon(double percent, bool charging) {
+    if (charging) {
+      if (percent > 0.9) {
+        return Icon(MdiIcons.batteryCharging, color: Colors.black54);
+      } else if (percent > 0.8) {
+        return Icon(MdiIcons.batteryCharging90, color: Colors.black54);
+      } else if (percent > 0.7) {
+        return Icon(MdiIcons.batteryCharging80, color: Colors.black54);
+      } else if (percent > 0.6) {
+        return Icon(MdiIcons.batteryCharging70, color: Colors.black54);
+      } else if (percent > 0.5) {
+        return Icon(MdiIcons.batteryCharging60, color: Colors.black54);
+      } else if (percent > 0.4) {
+        return Icon(MdiIcons.batteryCharging50, color: Colors.black54);
+      } else if (percent > 0.3) {
+        return Icon(MdiIcons.batteryCharging40, color: Colors.orange[300]);
+      } else if (percent > 0.2) {
+        return Icon(MdiIcons.batteryCharging30, color: Colors.orange[300]);
+      } else if (percent > 0.1) {
+        return Icon(MdiIcons.batteryCharging20, color: Colors.red[200]);
+      } else {
+        return Icon(MdiIcons.batteryCharging10, color: Colors.red[200]);
+      }
+    } else {
+      if (percent > 0.9) { 
+        return Icon(MdiIcons.battery, color: Colors.black54);
+      } else if (percent > 0.8) {
+        return Icon(MdiIcons.battery90, color: Colors.black54);
+      } else if (percent > 0.7) {
+        return Icon(MdiIcons.battery80, color: Colors.black54);
+      } else if (percent > 0.6) {
+        return Icon(MdiIcons.battery70, color: Colors.black54);
+      } else if (percent > 0.5) {
+        return Icon(MdiIcons.battery60, color: Colors.black54);
+      } else if (percent > 0.4) {
+        return Icon(MdiIcons.battery50, color: Colors.black54);
+      } else if (percent > 0.3) {
+        return Icon(MdiIcons.battery40, color: Colors.orange[300]);
+      } else if (percent > 0.2) {
+        return Icon(MdiIcons.battery30, color: Colors.orange[300]);
+      } else if (percent > 0.1) {
+        return Icon(MdiIcons.battery20, color: Colors.red[200]);
+      } else if (percent > 0) {
+        return Icon(MdiIcons.battery10, color: Colors.red[200]);
+      } else {
+        return Icon(MdiIcons.batteryUnknown, color: Colors.grey[400]);
+      }
     }
-    if(percentage > 0.875) {
-      return Icons.battery_full;
-    }
-    if(percentage > 0.75) {
-      return Icons.battery_6_bar;
-    }
-    if(percentage > 0.625) {
-      return Icons.battery_5_bar;
-    }
-    if(percentage > 0.5) {
-      return Icons.battery_4_bar;
-    }
-    if(percentage > 0.375) {
-      return Icons.battery_3_bar;
-    }
-    if(percentage > 0.25) {
-      return Icons.battery_2_bar;
-    }
-    if(percentage > 0.125) {
-      return Icons.battery_1_bar;
-    }
-    return Icons.battery_0_bar;
   }
 }
