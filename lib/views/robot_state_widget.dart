@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:get/get.dart';
 import 'package:open_mower_app/controllers/robot_state_controller.dart';
+import 'package:open_mower_app/views/emergency_widget.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:open_mower_app/widgets/emergency_widget.dart';
 
 class RobotStateWidget extends GetView<RobotStateController> {
   const RobotStateWidget({super.key});
