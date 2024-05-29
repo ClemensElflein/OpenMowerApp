@@ -34,7 +34,7 @@ class _EmergencyIconButtonState extends State<EmergencyIconButton> with SingleTi
       ),
     );
     } else {
-      return Container();
+      return SizedBox.shrink();
     }
   }
 
