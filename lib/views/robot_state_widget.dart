@@ -3,6 +3,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:get/get.dart';
 import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:niku/namespace.dart' as n;
+import 'package:open_mower_app/widgets/emergency_widget.dart';
 
 class RobotStateWidget extends GetView<RobotStateController> {
   const RobotStateWidget({super.key});
@@ -28,6 +29,7 @@ class RobotStateWidget extends GetView<RobotStateController> {
     return Material(
         elevation: 5,
         child: Obx(() =>n.Row([
+          EmergencyIconButton(emergency: controller.robotState.value.isEmergency),
           RichText(
               text: TextSpan(
                   style: const TextStyle(color: Colors.black87),
