@@ -207,6 +207,11 @@ class MqttConnection  {
     sensorsController.sensorStates.refresh();
   }
 
+  void parseVersion(obj) {
+    final String versionString = obj["version"];
+    robotStateController.softwareVersion.value = versionString;
+  }
+
   void parseActionInfos(obj) {
       final Set<String> newActionSet = {};
       for(final action in obj["d"]) {
@@ -229,6 +234,15 @@ class MqttConnection  {
           // print("got message on ${msg.topic}");
           final payload = msg.payload as MqttPublishMessage;
           switch(msg.topic) {
+            case "version": {
+              final bytes = payload.payload.message?.toList(growable: false);
+              if(bytes == null || bytes.isBlank == true) {
+                continue;
+              }
+              final object = BsonCodec.deserialize(BsonBinary.from(bytes));
+              parseVersion(object);
+            }
+            break;
             case "actions/bson": {
               final bytes = payload.payload.message?.toList(growable: false);
               if(bytes == null || bytes.isBlank == true) {
@@ -305,6 +319,7 @@ class MqttConnection  {
     client.subscribe("robot_state/bson", MqttQos.atMostOnce);
     client.subscribe("robot_state/bson", MqttQos.atMostOnce);
     client.subscribe("sensors/+/bson", MqttQos.atMostOnce);
+    client.subscribe("version", MqttQos.atLeastOnce);
   }
 
   void onDisconnected() {

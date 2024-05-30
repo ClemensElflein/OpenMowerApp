@@ -8,6 +8,7 @@ class RobotStateController extends GetxController {
 
   final map = MapModel().obs;
   final mapOverlay = MapOverlayModel().obs;
+  final softwareVersion = "".obs;
 
   var availableActions = <String>{}.obs;
 
