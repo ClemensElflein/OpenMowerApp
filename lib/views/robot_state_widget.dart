@@ -29,7 +29,7 @@ class RobotStateWidget extends GetView<RobotStateController> {
     return Material(
         elevation: 5,
         child: Obx(() =>n.Row([
-          EmergencyIconButton(emergency: controller.robotState.value.isEmergency),
+          EmergencyWidget(emergency: controller.robotState.value.isEmergency),
           RichText(
               text: TextSpan(
                   style: const TextStyle(color: Colors.black87),

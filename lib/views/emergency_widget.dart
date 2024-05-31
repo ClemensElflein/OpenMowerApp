@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:open_mower_app/controllers/remote_controller.dart';
 
-class EmergencyIconButton extends StatefulWidget {
+class EmergencyWidget extends StatefulWidget {
   final bool emergency;
+  final RemoteController remoteControl = Get.find();
 
-  const EmergencyIconButton({super.key, required this.emergency});
+  EmergencyWidget({super.key, required this.emergency});
 
   @override
-  State<EmergencyIconButton> createState() => _EmergencyIconButtonState();
+  State<EmergencyWidget> createState() => _EmergencyWidgetState();
 }
 
-class _EmergencyIconButtonState extends State<EmergencyIconButton>
+class _EmergencyWidgetState extends State<EmergencyWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
 
@@ -27,16 +30,37 @@ class _EmergencyIconButtonState extends State<EmergencyIconButton>
       return FadeTransition(
         opacity: _animationController,
         child: IconButton(
-          onPressed: () => {
-            //print("TODO: Release emergency")
-          },
           icon: Icon(Icons.gpp_maybe, color: Colors.red[500]),
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(minHeight: 24.0),
+          onPressed: () => {
+            showDialog<String>(
+              context: context,
+              builder: (BuildContext context) => AlertDialog(
+                title: const Text('Emergency Reset'),
+                content: const Text(
+                    'Did you checked and fixed the emergency cause?'),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('No'),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  TextButton(
+                    child: const Text('Yes'),
+                    onPressed: () {
+                      widget.remoteControl
+                          .callAction("mower_logic/reset_emergency");
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          },
         ),
       );
     } else {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
   }
 
