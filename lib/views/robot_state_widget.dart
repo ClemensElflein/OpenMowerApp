@@ -10,7 +10,7 @@ class RobotStateWidget extends GetView<RobotStateController> {
 
   Icon getMqttIcon(bool isConnected) {
     return isConnected
-        ? Icon(Icons.link, color: Colors.black54)
+        ? const Icon(Icons.link, color: Colors.black54)
         : Icon(Icons.link_off, color: Colors.red[200]);
   }
 
