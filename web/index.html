@@ -44,6 +44,7 @@
     window.addEventListener('load', function(ev) {
       // Download main.dart.js
       _flutter.loader.loadEntrypoint({
+        entrypointUrl: "main.dart.js?v=" + serviceWorkerVersion,
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
         }
