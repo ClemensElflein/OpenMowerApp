@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:get/get.dart';
 import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/views/emergency_widget.dart';
@@ -80,17 +80,17 @@ class RobotStateWidget extends GetView<RobotStateController> {
   Icon getBatteryIcon(double percent, bool charging) {
     if (charging) {
       if (percent > 0.9) {
-        return Icon(MdiIcons.batteryCharging, color: Colors.black54);
+        return const Icon(MdiIcons.batteryCharging100, color: Colors.black54);
       } else if (percent > 0.8) {
-        return Icon(MdiIcons.batteryCharging90, color: Colors.black54);
+        return const Icon(MdiIcons.batteryCharging90, color: Colors.black54);
       } else if (percent > 0.7) {
-        return Icon(MdiIcons.batteryCharging80, color: Colors.black54);
+        return const Icon(MdiIcons.batteryCharging80, color: Colors.black54);
       } else if (percent > 0.6) {
-        return Icon(MdiIcons.batteryCharging70, color: Colors.black54);
+        return const Icon(MdiIcons.batteryCharging70, color: Colors.black54);
       } else if (percent > 0.5) {
-        return Icon(MdiIcons.batteryCharging60, color: Colors.black54);
+        return const Icon(MdiIcons.batteryCharging60, color: Colors.black54);
       } else if (percent > 0.4) {
-        return Icon(MdiIcons.batteryCharging50, color: Colors.black54);
+        return const Icon(MdiIcons.batteryCharging50, color: Colors.black54);
       } else if (percent > 0.3) {
         return Icon(MdiIcons.batteryCharging40, color: Colors.orange[300]);
       } else if (percent > 0.2) {
@@ -102,17 +102,17 @@ class RobotStateWidget extends GetView<RobotStateController> {
       }
     } else {
       if (percent > 0.9) { 
-        return Icon(MdiIcons.battery, color: Colors.black54);
+        return const Icon(MdiIcons.battery, color: Colors.black54);
       } else if (percent > 0.8) {
-        return Icon(MdiIcons.battery90, color: Colors.black54);
+        return const Icon(MdiIcons.battery90, color: Colors.black54);
       } else if (percent > 0.7) {
-        return Icon(MdiIcons.battery80, color: Colors.black54);
+        return const Icon(MdiIcons.battery80, color: Colors.black54);
       } else if (percent > 0.6) {
-        return Icon(MdiIcons.battery70, color: Colors.black54);
+        return const Icon(MdiIcons.battery70, color: Colors.black54);
       } else if (percent > 0.5) {
-        return Icon(MdiIcons.battery60, color: Colors.black54);
+        return const Icon(MdiIcons.battery60, color: Colors.black54);
       } else if (percent > 0.4) {
-        return Icon(MdiIcons.battery50, color: Colors.black54);
+        return const Icon(MdiIcons.battery50, color: Colors.black54);
       } else if (percent > 0.3) {
         return Icon(MdiIcons.battery40, color: Colors.orange[300]);
       } else if (percent > 0.2) {
