@@ -39,7 +39,7 @@ class _EmergencyWidgetState extends State<EmergencyWidget>
               builder: (BuildContext context) => AlertDialog(
                 title: const Text('Emergency Reset'),
                 content: const Text(
-                    'Did you checked and fixed the emergency cause?'),
+                    'Only confirm this if you are sure the emergency has been resolved (e.g. no one is carrying the robot).\n\nAre you sure you want to reset the emergency?'),
                 actions: <Widget>[
                   TextButton(
                     child: const Text('No'),
