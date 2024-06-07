@@ -25,7 +25,7 @@ class SensorWidget extends StatelessWidget {
           ..color = Colors.black54
           ..center,
           AutoSizeText(
-            "${sensor?.value.toStringAsFixed(2) ?? "N/A"} ${sensor?.unit.replaceAll("deg.C", "°C")}",
+            "${sensor?.value?.toStringAsFixed(2) ?? "N/A"} ${sensor?.unit?.replaceAll("deg.C", "°C")}",
             maxLines: 1,
             style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black54),
           )
