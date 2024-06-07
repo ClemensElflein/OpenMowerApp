@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'package:get/get.dart';
 import 'package:open_mower_app/controllers/robot_state_controller.dart';
+import 'package:open_mower_app/views/emergency_widget.dart';
 import 'package:niku/namespace.dart' as n;
 
 class RobotStateWidget extends GetView<RobotStateController> {
   const RobotStateWidget({super.key});
 
-  IconData getGpsIcon(percent) {
-    if(percent > 0.75) {
-      return Icons.gps_fixed;
+  Icon getMqttIcon(bool isConnected) {
+    return isConnected
+        ? const Icon(Icons.link, color: Colors.black54)
+        : Icon(Icons.link_off, color: Colors.red[200]);
+  }
+
+  Icon getGpsIcon(percent) {
+    // TODO: Need gps_enabled flag for a reliable gps_not_fixed/gps_off icon
+    if (percent > 0.75) {
+      return Icon(Icons.gps_fixed, color: Colors.green[200]);
+    } else if (percent >= 0.25) {
+      return Icon(Icons.gps_not_fixed, color: Colors.orange[200]);
     }
-    if(percent >= 0.25) {
-      return Icons.gps_not_fixed;
-    }
-    return Icons.gps_off;
+    return Icon(Icons.gps_off, color: Colors.grey[400]);
   }
 
   @override
@@ -22,14 +29,14 @@ class RobotStateWidget extends GetView<RobotStateController> {
     return Material(
         elevation: 5,
         child: Obx(() =>n.Row([
+          EmergencyWidget(emergency: controller.robotState.value.isEmergency),
           RichText(
               text: TextSpan(
                   style: const TextStyle(color: Colors.black87),
                   children: [
                 const TextSpan(text: "MQTT: "),
                 WidgetSpan(
-                    child:
-                        Icon(controller.robotState.value.isConnected ? Icons.link : Icons.link_off, color: Colors.black54),
+                    child: getMqttIcon(controller.robotState.value.isConnected),
                     alignment: PlaceholderAlignment.middle),
               ])),
           /*RichText(
@@ -48,7 +55,7 @@ class RobotStateWidget extends GetView<RobotStateController> {
                   children: [
                 const TextSpan(text: "GPS: "),
                 WidgetSpan(
-                    child: Obx(() => Icon(getGpsIcon(controller.robotState.value.gpsPercent), color: Colors.black54)),
+                    child: Obx(() => getGpsIcon(controller.robotState.value.gpsPercent)),
                     alignment: PlaceholderAlignment.middle),
               ])),
           RichText(
@@ -57,7 +64,7 @@ class RobotStateWidget extends GetView<RobotStateController> {
                   children: [
                 const TextSpan(text: "Battery: "),
                 WidgetSpan(
-                    child: Icon(getBatteryIcon(controller.robotState.value.batteryPercent, controller.robotState.value.isCharging), color: Colors.black54),
+                    child: getBatteryIcon(controller.robotState.value.batteryPercent, controller.robotState.value.isCharging),
                     alignment: PlaceholderAlignment.middle),
               ]))
         ])
@@ -66,31 +73,57 @@ class RobotStateWidget extends GetView<RobotStateController> {
           ..gap = 8));
   }
 
-  IconData getBatteryIcon(double percentage, bool charging) {
-    if(charging && percentage > 0.875){
-      return Icons.battery_charging_full;
+  /* Place this ugly function last.
+   * Needs to be that ugly for not require --no-tree-shake-icons build option (Flutter >= 1.22),
+   * which would disable Icon subsetting and thus blow up our code by about 350k
+   */
+  Icon getBatteryIcon(double percent, bool charging) {
+    if (charging) {
+      if (percent > 0.9) {
+        return const Icon(MdiIcons.batteryCharging100, color: Colors.black54);
+      } else if (percent > 0.8) {
+        return const Icon(MdiIcons.batteryCharging90, color: Colors.black54);
+      } else if (percent > 0.7) {
+        return const Icon(MdiIcons.batteryCharging80, color: Colors.black54);
+      } else if (percent > 0.6) {
+        return const Icon(MdiIcons.batteryCharging70, color: Colors.black54);
+      } else if (percent > 0.5) {
+        return const Icon(MdiIcons.batteryCharging60, color: Colors.black54);
+      } else if (percent > 0.4) {
+        return const Icon(MdiIcons.batteryCharging50, color: Colors.black54);
+      } else if (percent > 0.3) {
+        return Icon(MdiIcons.batteryCharging40, color: Colors.orange[300]);
+      } else if (percent > 0.2) {
+        return Icon(MdiIcons.batteryCharging30, color: Colors.orange[300]);
+      } else if (percent > 0.1) {
+        return Icon(MdiIcons.batteryCharging20, color: Colors.red[200]);
+      } else {
+        return Icon(MdiIcons.batteryCharging10, color: Colors.red[200]);
+      }
+    } else {
+      if (percent > 0.9) { 
+        return const Icon(MdiIcons.battery, color: Colors.black54);
+      } else if (percent > 0.8) {
+        return const Icon(MdiIcons.battery90, color: Colors.black54);
+      } else if (percent > 0.7) {
+        return const Icon(MdiIcons.battery80, color: Colors.black54);
+      } else if (percent > 0.6) {
+        return const Icon(MdiIcons.battery70, color: Colors.black54);
+      } else if (percent > 0.5) {
+        return const Icon(MdiIcons.battery60, color: Colors.black54);
+      } else if (percent > 0.4) {
+        return const Icon(MdiIcons.battery50, color: Colors.black54);
+      } else if (percent > 0.3) {
+        return Icon(MdiIcons.battery40, color: Colors.orange[300]);
+      } else if (percent > 0.2) {
+        return Icon(MdiIcons.battery30, color: Colors.orange[300]);
+      } else if (percent > 0.1) {
+        return Icon(MdiIcons.battery20, color: Colors.red[200]);
+      } else if (percent > 0) {
+        return Icon(MdiIcons.battery10, color: Colors.red[200]);
+      } else {
+        return Icon(MdiIcons.batteryUnknown, color: Colors.grey[400]);
+      }
     }
-    if(percentage > 0.875) {
-      return Icons.battery_full;
-    }
-    if(percentage > 0.75) {
-      return Icons.battery_6_bar;
-    }
-    if(percentage > 0.625) {
-      return Icons.battery_5_bar;
-    }
-    if(percentage > 0.5) {
-      return Icons.battery_4_bar;
-    }
-    if(percentage > 0.375) {
-      return Icons.battery_3_bar;
-    }
-    if(percentage > 0.25) {
-      return Icons.battery_2_bar;
-    }
-    if(percentage > 0.125) {
-      return Icons.battery_1_bar;
-    }
-    return Icons.battery_0_bar;
   }
 }
