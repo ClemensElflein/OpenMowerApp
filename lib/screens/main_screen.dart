@@ -1,13 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/screens/dashboard.dart';
 import 'package:open_mower_app/screens/sensor_values.dart';
 import 'package:open_mower_app/screens/settings.dart';
-import 'package:open_mower_app/screens/remote_control.dart';
 import 'package:open_mower_app/views/logo_widget.dart';
 import 'package:open_mower_app/views/logo_widget_drawer.dart';
 

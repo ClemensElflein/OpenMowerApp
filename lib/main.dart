@@ -8,7 +8,6 @@ import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/controllers/sensors_controller.dart';
 import 'package:open_mower_app/controllers/settings_controller.dart';
 import 'package:open_mower_app/io/mqtt_connection.dart';
-import 'package:open_mower_app/models/sensor_state.dart';
 import 'package:open_mower_app/screens/main_screen.dart';
 
 void main() async {

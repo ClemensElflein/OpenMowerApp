@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
 import 'package:get/get.dart';
@@ -6,7 +5,6 @@ import 'package:niku/namespace.dart' as n;
 import 'package:open_mower_app/controllers/remote_controller.dart';
 import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/models/joystick_command.dart';
-import 'package:open_mower_app/screens/remote_control.dart';
 import 'package:open_mower_app/views/map_widget.dart';
 import 'package:open_mower_app/views/robot_state_widget.dart';
 
@@ -53,7 +51,7 @@ class Dashboard extends GetView<RobotStateController> {
                 remoteControl.joystickCommand.value =
                     JoystickCommand(-details.y * 1.0, -details.x * 1.6);
               },
-            )) : n.Row([])),
+            )) : n.Row(const [])),
       ])
         ..expanded,
       Material(

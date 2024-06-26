@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/controllers/settings_controller.dart';
-import 'package:open_mower_app/views/sensor_widget.dart';
 
-import 'main_screen.dart';
 
 class Settings extends GetView<SettingsController> {
   const Settings({super.key});

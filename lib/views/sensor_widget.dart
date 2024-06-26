@@ -1,11 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:get/get.dart';
 import 'package:niku/niku.dart';
-import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:open_mower_app/controllers/sensors_controller.dart';
 import 'package:open_mower_app/models/sensor_state.dart';
 
 class SensorWidget extends StatelessWidget {
@@ -25,7 +21,7 @@ class SensorWidget extends StatelessWidget {
           ..color = Colors.black54
           ..center,
           AutoSizeText(
-            "${sensor?.value?.toStringAsFixed(2) ?? "N/A"} ${sensor?.unit?.replaceAll("deg.C", "°C")}",
+            "${sensor?.value.toStringAsFixed(2) ?? "N/A"} ${sensor?.unit.replaceAll("deg.C", "°C")}",
             maxLines: 1,
             style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black54),
           )

@@ -4,10 +4,7 @@ import 'package:get/get.dart';
 import 'package:open_mower_app/controllers/settings_controller.dart';
 import 'package:open_mower_app/io/mqtt_connection.dart';
 import 'package:open_mower_app/models/joystick_command.dart';
-import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/status.dart' as status;
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:typed_data/typed_data.dart';
 
 class RemoteController extends GetxController {
 

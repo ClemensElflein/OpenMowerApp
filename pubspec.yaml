@@ -47,6 +47,7 @@ dependencies:
   # This icon package has the newer battery_charging_* icons included
   flutter_material_design_icons: ^1.1.7447
 
+  typed_data: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

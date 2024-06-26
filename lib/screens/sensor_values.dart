@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/controllers/sensors_controller.dart';
 import 'package:open_mower_app/views/robot_state_widget.dart';
 import 'package:open_mower_app/views/sensor_widget.dart';
