@@ -52,7 +52,7 @@ class MainScreen extends GetView<RobotStateController> {
         child: Padding(
             padding: EdgeInsets.all(24),
             child: FittedBox(
-                child: LogoWidgetDrawer(size: 0.1))),
+                child: LogoWidgetDrawer(size: 0.2))), // AH20240627 size 0.1 had issues with rendering 'n' and 'r' in android browser 
       ),
       ListTile(
         leading: n.Icon(Icons.speed),
