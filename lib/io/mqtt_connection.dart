@@ -20,11 +20,11 @@ class MqttConnection  {
 
 
   static final MqttConnection _instance = MqttConnection._internal();
-  int _client_id = 0;
+  int clientId = 0;
   // singleton constructor
   MqttConnection._internal() {
     final rng = Random();
-    _client_id = rng.nextInt(99999);
+    clientId = rng.nextInt(99999);
   }
 
   factory MqttConnection() {
@@ -66,7 +66,7 @@ class MqttConnection  {
     try {
       client.publishMessage("teleop", highQos ? MqttQos.atLeastOnce : MqttQos.atMostOnce, buffer);
     } catch(e) {
-      print("error publishing to mqtt");
+      debugPrint("error publishing to mqtt");
     }
 
   }
@@ -132,7 +132,7 @@ class MqttConnection  {
       }
     }
 
-    print("Got a map with ${mapModel.mowingAreas.length} mowing areas and ${mapModel.navigationAreas.length} navigation areas. Size: ${mapModel.width} x ${mapModel.height}. Docking pos: ${mapModel.dockX}, ${mapModel.dockY}");
+    debugPrint("Got a map with ${mapModel.mowingAreas.length} mowing areas and ${mapModel.navigationAreas.length} navigation areas. Size: ${mapModel.width} x ${mapModel.height}. Docking pos: ${mapModel.dockX}, ${mapModel.dockY}");
 
     final RobotStateController robotStateController = Get.find();
     robotStateController.map.value = mapModel;
@@ -186,13 +186,13 @@ class MqttConnection  {
 
 
   void parseSensorInfos(obj) {
-    print("Got new sensor infos, refreshing");
-    for(final sensor_info in obj["d"]) {
-      switch(sensor_info["value_type"]) {
+    debugPrint("Got new sensor infos, refreshing");
+    for(final sensorInfo in obj["d"]) {
+      switch(sensorInfo["value_type"]) {
         case "DOUBLE": {
           // Got a double sensor
-          final sensor = DoubleSensorState(sensor_info["sensor_name"], sensor_info["min_value"], sensor_info["max_value"], sensor_info["unit"]);
-          sensorsController.sensorStates[sensor_info["sensor_id"]] = sensor;
+          final sensor = DoubleSensorState(sensorInfo["sensor_name"], sensorInfo["min_value"], sensorInfo["max_value"], sensorInfo["unit"]);
+          sensorsController.sensorStates[sensorInfo["sensor_id"]] = sensor;
         }
       }
     }
@@ -220,12 +220,13 @@ class MqttConnection  {
         }
       }
 
-      print("available actions: $newActionSet");
+      debugPrint("available actions: $newActionSet");
+      // FIXME: invalid_use_of_protected_member
       robotStateController.availableActions.value = newActionSet;
   }
 
   void onConnected() {
-    print("MQTT connected");
+    debugPrint("MQTT connected");
     robotStateController.setConnected(true);
 
     client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
@@ -303,7 +304,7 @@ class MqttConnection  {
                   final object = BsonCodec.deserialize(BsonBinary.from(bytes));
                   parseSensorData(match[1], object);
                 } else {
-                  print("got unknown message on topic: ${msg.topic}");
+                  debugPrint("got unknown message on topic: ${msg.topic}");
                 }
               }
             }
@@ -323,13 +324,13 @@ class MqttConnection  {
   }
 
   void onDisconnected() {
-    print("MQTT disconnected");
+    debugPrint("MQTT disconnected");
     robotStateController.setConnected(false);
   }
 
   void connect() async {
     if(_connecting) {
-      print("MQTT already connecting, ignoring connect() call");
+      debugPrint("MQTT already connecting, ignoring connect() call");
       return;
     }
     _connecting = true;
@@ -361,22 +362,22 @@ class MqttConnection  {
     // .withProtocolName("mqtt")
     // .withProtocolName("websocket")
     // .startClean()
-        .withClientIdentifier("om-client-$_client_id");
+        .withClientIdentifier("om-client-$clientId");
       // .authenticateAs(settingsController.mqttUsername, settingsController.mqttPassword);
 
-    print('Mosquitto client connecting to ${client.server} on ${client.port}....');
+    debugPrint('Mosquitto client connecting to ${client.server} on ${client.port}....');
     client.connectionMessage = connMess;
 
     try {
       await client.connect();
     } on Exception catch (e) {
-      print('EXAMPLE::client exception - $e');
+      debugPrint('EXAMPLE::client exception - $e');
       client.disconnect();
       _connecting = false;
 
       return;
     }
-    print("MQTT connect success!");
+    debugPrint("MQTT connect success!");
     _connecting = false;
   }
 
@@ -384,7 +385,7 @@ class MqttConnection  {
     if(client.connectionStatus?.state == MqttConnectionState.connected || client.connectionStatus?.state == MqttConnectionState.connecting) {
       return;
     }
-    print("trying reconnect MQTT");
+    debugPrint("trying reconnect MQTT");
     connect();
   }
 
@@ -394,7 +395,7 @@ class MqttConnection  {
     try {
       client.publishMessage("action", MqttQos.exactlyOnce, builder.payload!);
     } catch(e) {
-      print("error publishing to mqtt");
+      debugPrint("error publishing to mqtt");
     }
   }
 

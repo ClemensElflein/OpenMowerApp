@@ -247,10 +247,10 @@ packages:
     dependency: "direct main"
     description:
       name: mqtt5_client
-      sha256: "9259f7493dbb7f230673761be653a8b12f9476e4a791944cc7983a5c11767b30"
+      sha256: "3edc594d2d813bd364650983f4110b1d200ecfdc2c5968a4e6ee2bd2ebc66ee5"
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.5"
+    version: "4.3.0"
   niku:
     dependency: "direct main"
     description:

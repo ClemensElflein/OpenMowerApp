@@ -18,8 +18,8 @@ void main() async {
   settingsController.load();
 
   // Second the robotStateController. MQTTConnection needs it
-  final robotStateController = Get.put(RobotStateController());
-  final sensorStateController = Get.put(SensorsController());
+  Get.put(RobotStateController());
+  Get.put(SensorsController());
 
   initServices();
   final MqttConnection mqttConnection = Get.find();

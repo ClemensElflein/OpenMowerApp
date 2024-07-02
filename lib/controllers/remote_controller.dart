@@ -28,7 +28,7 @@ class RemoteController extends GetxController {
 
     // listen on hostname changes, then invalidate the channel
     ever(settingsController.hostname, (callback) => (){
-      print("settings changed, resetting websocket");
+      debugPrint("settings changed, resetting websocket");
       channel = null;
     });
   }
