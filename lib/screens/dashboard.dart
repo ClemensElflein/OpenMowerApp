@@ -43,6 +43,10 @@ class Dashboard extends GetView<RobotStateController> {
             padding: const EdgeInsets.all(30.0),
             alignment: Alignment.bottomCenter,
             child: Joystick(
+              base: JoystickBase(
+                decoration: JoystickBaseDecoration(
+                  drawOuterCircle: false,
+                )),
               mode: JoystickMode.all,
               onStickDragEnd: () {
                 remoteControl.sendMessage(0, 0);
