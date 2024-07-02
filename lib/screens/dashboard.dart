@@ -42,20 +42,23 @@ class Dashboard extends GetView<RobotStateController> {
         Container(
             padding: const EdgeInsets.all(30.0),
             alignment: Alignment.bottomCenter,
-            child: Joystick(
-              base: JoystickBase(
-                decoration: JoystickBaseDecoration(
-                  drawOuterCircle: false,
-                )),
-              mode: JoystickMode.all,
-              onStickDragEnd: () {
-                remoteControl.sendMessage(0, 0);
-              },
-              listener: (details) {
-                remoteControl.joystickCommand.value =
-                    JoystickCommand(-details.y * 1.0, -details.x * 1.6);
-              },
-            )) : n.Row(const [])),
+            child: Opacity(
+              opacity: 0.8,
+              child: Joystick(
+                base: JoystickBase(
+                  decoration: JoystickBaseDecoration(
+                    drawOuterCircle: false,
+                  )),
+                mode: JoystickMode.all,
+                onStickDragEnd: () {
+                  remoteControl.sendMessage(0, 0);
+                },
+                listener: (details) {
+                  remoteControl.joystickCommand.value = JoystickCommand(-details.y * 1.0, -details.x * 1.6);
+                },
+              )
+            )
+        ) : n.Row(const [])),
       ])
         ..expanded,
       Material(
