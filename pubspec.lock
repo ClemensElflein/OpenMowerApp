@@ -179,6 +179,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.3"
+  geekyants_flutter_gauges:
+    dependency: "direct main"
+    description:
+      name: geekyants_flutter_gauges
+      sha256: "75de8caf0b067931b8da09548cef858c750c59f8390de4411d329eba257ba9c3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   get:
     dependency: "direct main"
     description:
