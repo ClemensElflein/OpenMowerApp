@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:niku/niku.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:open_mower_app/controllers/remote_controller.dart';
-import 'package:open_mower_app/controllers/sensors_controller.dart';
 import 'package:open_mower_app/models/sensor_state.dart';
 import 'package:gauge_indicator/gauge_indicator.dart' as gauge_indicator;
-import 'package:geekyants_flutter_gauges/geekyants_flutter_gauges.dart';
+import 'linear_gauge_widget.dart';
 import 'dart:math';
 
 class SensorWidget extends StatelessWidget {
@@ -24,15 +22,12 @@ class SensorWidget extends StatelessWidget {
     bool hasCriticalLow = (sensor?.hasCriticalLow ?? false);
     double lowerCriticalValue = (sensor?.lowerCriticalValue ?? 0);
 
-    bool hasCriticalHigh = (sensor?.hasCriticalHigh ?? false);
-    double upperCricticalValue = (sensor?.upperCricticalValue ?? 0);
-
     double minAxis = min(minValue, lowerCriticalValue);
     minAxis = (((minAxis + 5 - 1) / 5).toInt() * 5); // Next multiple of 5
     if (minAxis > 0) minAxis -= 5; // Previous multiple of 5
 
-    switch (sensor?.unit) {
-      case "rpm":
+    switch (sensor?.unit.toUpperCase()) {
+      case "RPM":
         // Use some reasonable defaults if not given
         lowerCriticalValue = hasCriticalLow ? lowerCriticalValue : 2300;
         minValue = hasMinMax ? minValue : 2800;
@@ -103,110 +98,7 @@ class SensorWidget extends StatelessWidget {
             //..center
             );
       case "A":
-        // Vertical gauge for ampere where "higher is more worse" = red
-        double maxAxis = max(maxValue, upperCricticalValue);
-        maxAxis = maxAxis.ceil().toDouble();
-
-        double axisRange = (maxAxis - minAxis);
-
-        return Material(
-          elevation: 2,
-          child: n.Row([
-            n.Column([
-              (sensor?.name ?? "N/A").bodyMedium
-                ..color = Colors.black54
-                ..center,
-              AutoSizeText(
-                "${sensor?.value.toStringAsFixed(2) ?? "N/A"} ${sensor?.unit}",
-                maxLines: 1,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black54),
-              )
-            ])
-              ..expanded
-              ..center,
-            LinearGauge(
-              start: minAxis,
-              end: maxAxis,
-              gaugeOrientation: GaugeOrientation.vertical,
-              linearGaugeBoxDecoration: LinearGaugeBoxDecoration(
-                thickness: 3,
-                linearGradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  stops: [
-                    // A stop = fraction of axis range
-                    0,
-                    if (hasMinMax)
-                      ((((maxValue - minValue) / 2) + minValue) - minAxis) /
-                          axisRange,
-                    if (hasMinMax) (maxValue - minAxis) / axisRange,
-                  ],
-                  colors: [
-                    if (hasMinMax) Colors.green else Colors.grey.shade400,
-                    if (hasMinMax) Colors.yellow,
-                    if (hasMinMax) Colors.red,
-                  ],
-                ),
-              ),
-              pointers: [
-                Pointer(
-                  value: sensor?.value ?? 0,
-                  shape: PointerShape.triangle,
-                  color: Colors.black54,
-                  pointerPosition: PointerPosition.left,
-                ),
-                if (hasMinMax)
-                  Pointer(
-                    value: minValue,
-                    shape: PointerShape.diamond,
-                    color: Colors.green.shade400,
-                    width: 8,
-                    height: 8,
-                    pointerPosition: PointerPosition.center,
-                  ),
-                if (hasMinMax)
-                  Pointer(
-                    value: maxValue,
-                    shape: PointerShape.diamond,
-                    color: Colors.orange.shade400,
-                    width: 8,
-                    height: 8,
-                    pointerPosition: PointerPosition.center,
-                  ),
-                if (hasCriticalHigh)
-                  Pointer(
-                    value: upperCricticalValue,
-                    shape: PointerShape.diamond,
-                    color: Colors.red.shade400,
-                    width: 8,
-                    height: 8,
-                    pointerPosition: PointerPosition.center,
-                  ),
-              ],
-              rulers: RulerStyle(
-                rulerPosition: RulerPosition.center,
-                primaryRulerColor: Colors.grey,
-                textStyle: const TextStyle(
-                    fontSize: 12.0,
-                    color: Colors.black54,
-                    fontStyle: FontStyle.normal,
-                    fontWeight: FontWeight.normal),
-              ),
-            )
-          ])
-            ..p = 12,
-        );
       case "V":
-        // Vertical gauge for voltage where "higher is better" = green
-        double maxAxis = max(maxValue, upperCricticalValue);
-        maxAxis = ((maxAxis + 5 - 1) / 5).toInt() * 5; // Next multiple of 5
-
-        double axisRange = (maxAxis - minAxis);
-
         return Material(
           elevation: 2,
           child: n.Row([
@@ -226,98 +118,7 @@ class SensorWidget extends StatelessWidget {
             ])
               ..expanded
               ..center,
-            LinearGauge(
-              start: minAxis,
-              end: maxAxis,
-              gaugeOrientation: GaugeOrientation.vertical,
-              linearGaugeBoxDecoration: LinearGaugeBoxDecoration(
-                thickness: 3,
-                linearGradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  stops: [
-                    // A stop = fraction of axis range
-
-                    if (hasCriticalLow || hasMinMax)
-                      (lowerCriticalValue - minAxis) / axisRange
-                    else
-                      0,
-                    if (hasMinMax) (minValue - minAxis) / axisRange,
-                    if (hasMinMax)
-                      ((((maxValue - minValue) / 2) + minValue) - minAxis) /
-                          axisRange,
-                    if (hasMinMax) (maxValue - minAxis) / axisRange,
-                    if (hasCriticalHigh)
-                      (upperCricticalValue - minAxis) / axisRange,
-                    if (hasCriticalHigh) 1,
-                  ],
-                  colors: [
-                    if (hasCriticalLow || hasMinMax)
-                      Colors.red.shade400
-                    else
-                      Colors.grey.shade400,
-                    if (hasMinMax) Colors.orange.shade400,
-                    if (hasMinMax) Colors.yellow.shade400,
-                    if (hasMinMax) Colors.green.shade400,
-                    if (hasCriticalHigh) Colors.orange.shade400,
-                    if (hasCriticalHigh) Colors.red.shade400,
-                  ],
-                ),
-              ),
-              pointers: [
-                Pointer(
-                  value: sensor?.value ?? 0,
-                  shape: PointerShape.triangle,
-                  color: Colors.black54,
-                  pointerPosition: PointerPosition.left,
-                ),
-                if (hasMinMax)
-                  Pointer(
-                  value: minValue,
-                  shape: PointerShape.diamond,
-                  color: Colors.orange.shade400,
-                  width: 8,
-                  height: 8,
-                  pointerPosition: PointerPosition.center,
-                ),
-                if (hasMinMax)
-                  Pointer(
-                    value: maxValue,
-                    shape: PointerShape.diamond,
-                    color: Colors.green.shade400,
-                    width: 8,
-                    height: 8,
-                    pointerPosition: PointerPosition.center,
-                  ),
-                if (hasCriticalLow)
-                  Pointer(
-                    value: lowerCriticalValue,
-                    shape: PointerShape.diamond,
-                    color: Colors.red.shade400,
-                    width: 8,
-                    height: 8,
-                    pointerPosition: PointerPosition.center,
-                  ),
-                if (hasCriticalHigh)
-                  Pointer(
-                    value: upperCricticalValue,
-                    shape: PointerShape.diamond,
-                    color: Colors.red.shade400,
-                    width: 8,
-                    height: 8,
-                    pointerPosition: PointerPosition.center,
-                  ),
-              ],
-              rulers: RulerStyle(
-                rulerPosition: RulerPosition.center,
-                primaryRulerColor: Colors.grey,
-                textStyle: const TextStyle(
-                    fontSize: 12.0,
-                    color: Colors.black54,
-                    fontStyle: FontStyle.normal,
-                    fontWeight: FontWeight.normal),
-              ),
-            )
+              LinearGaugeWidget(sensor: sensor, gradientColorScheme: (sensor?.unit.toUpperCase() == "A" ? GradientColorScheme.greenYellowRed : GradientColorScheme.redYellowGreen),)
           ])
             ..p = 12,
         );
