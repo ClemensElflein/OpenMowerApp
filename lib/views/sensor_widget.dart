@@ -4,8 +4,10 @@ import 'package:niku/niku.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:open_mower_app/models/sensor_state.dart';
 import 'package:gauge_indicator/gauge_indicator.dart' as gauge_indicator;
-import 'linear_gauge_widget.dart';
 import 'dart:math';
+import 'temperature_gauge.dart';
+import 'voltage_gauge_widget.dart';
+import 'current_gauge_widget.dart';
 
 class SensorWidget extends StatelessWidget {
   final DoubleSensorState? sensor;
@@ -99,44 +101,87 @@ class SensorWidget extends StatelessWidget {
             );
       case "A":
       case "V":
+        // Vertical linear gauges
         return Material(
           elevation: 2,
           child: n.Row([
-            n.Column([
-              (sensor?.name ?? "N/A").bodyMedium
-                ..color = Colors.black54
-                ..center,
-              AutoSizeText(
-                "${sensor?.value.toStringAsFixed(2) ?? "N/A"} ${sensor?.unit}",
-                maxLines: 1,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black54),
-              )
-            ])
-              ..expanded
-              ..center,
-              LinearGaugeWidget(sensor: sensor, gradientColorScheme: (sensor?.unit.toUpperCase() == "A" ? GradientColorScheme.greenYellowRed : GradientColorScheme.redYellowGreen),)
+            Expanded(
+                flex: 3,
+                child: n.Column([
+                  // 3 columns, evenly distributed
+                  Expanded(
+                      child: Container(
+                          //color: Colors.green[50], child: Text("Col-Top")
+                          )),
+                  Expanded(
+                      child: Container(
+                          //color: Colors.yellow[50],
+                          child: n.Column([
+                    (sensor?.name ?? "N/A").bodyMedium
+                      ..color = Colors.black54
+                      ..center,
+                    AutoSizeText(
+                      "${sensor?.value.toStringAsFixed(2) ?? "N/A"} ${sensor?.unit}",
+                      maxLines: 1,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black54),
+                    )
+                  ]))),
+                  Expanded(
+                      child: Container(
+                          //color: Colors.orange[50], child: Text("Col-Bot")
+                          )),
+                ])
+                  ..center),
+            Expanded(
+                child: Container(
+                    //color: Colors.blue[50],
+                    child: Align(
+                        alignment: Alignment.center,
+                        child: (sensor?.unit.toUpperCase() == "V"
+                            ? VoltageGaugeWidget(sensor: sensor)
+                            : CurrentGaugeWidget(sensor: sensor)))))
           ])
-            ..p = 12,
+            ..p = 12
+            ..center,
         );
       default:
+        // No, or horizontal gauge
         return Material(
             elevation: 2,
             child: n.Column([
-              (sensor?.name ?? "N/A").bodyMedium
-                ..color = Colors.black54
-                ..center,
-              AutoSizeText(
-                "${sensor?.value.toStringAsFixed(2) ?? "N/A"} ${sensor?.unit.replaceAll("deg.C", "°C")}",
-                maxLines: 1,
-                style: const TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black54),
-              )
+              // 3 columns, evenly distributed
+              Expanded(
+                  child: Container(
+                      //color: Colors.green[50], child: Text("Top-Col")
+                      )),
+              Expanded(
+                  child: Container(
+                      //color: Colors.yellow[50],
+                      child: n.Column([
+                (sensor?.name ?? "N/A").bodyMedium
+                  ..color = Colors.black54
+                  ..center,
+                AutoSizeText(
+                  "${sensor?.value.toStringAsFixed(2) ?? "N/A"} ${sensor?.unit.replaceAll("deg.C", "°C")}",
+                  maxLines: 1,
+                  style: const TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54),
+                )
+              ]))),
+              Expanded(
+                  child: Container(
+                      //color: Colors.orange[50],
+                      child: (sensor?.unit.toUpperCase() == "DEG.C"
+                          ? Align(
+                              alignment: Alignment.bottomCenter,
+                              child: TemperatureGauge(sensor: sensor))
+                          : null))),
             ])
               ..p = 12
               ..center);
