@@ -2,7 +2,7 @@ import 'package:open_mower_app/models/sensor_state.dart';
 import 'dart:math';
 
 /// A simple class which simplifies the handling of
-/// flixible axis lengths/data
+/// flexible axis lengths/data
 class FlexAxisData {
   double minAxis = 0;
   double maxAxis = 100;
@@ -17,8 +17,8 @@ class FlexAxisData {
   bool hasCriticalHigh = false;
   double upperCriticalValue = 0;
 
+  /// Compute some often used axis vars for easier usage
   compute(DoubleSensorState? sensor) {
-    // Prepare some often used gauge vars for easier usage
     minValue = (sensor?.minValue ?? 0);
     maxValue = (sensor?.maxValue ?? 0);
 
@@ -35,12 +35,16 @@ class FlexAxisData {
 
     // Optimize minAxis value
     double axisDivider = axisRange / 4; // Lets assume 4 divider over the range
-    minAxis = (((minAxis + axisDivider - 1) / axisDivider).toInt() * axisDivider).ceilToDouble(); // Prev ceil divider
+    minAxis =
+        (((minAxis + axisDivider - 1) / axisDivider).toInt() * axisDivider)
+            .ceilToDouble(); // Prev ceil divider
 
     axisRange = (maxAxis - minAxis);
   }
 }
 
+/// A simple mixin which simplifies the handling of
+/// flexible axis lengths/data in gauge widgets
 mixin FlexAxis {
   final FlexAxisData _axisData = FlexAxisData();
 
@@ -55,7 +59,7 @@ mixin FlexAxis {
 
   bool get hasCriticalLow => _axisData.hasCriticalLow;
   double get lowerCriticalValue => _axisData.lowerCriticalValue;
-  
+
   bool get hasCriticalHigh => _axisData.hasCriticalHigh;
   double get upperCriticalValue => _axisData.upperCriticalValue;
 }
