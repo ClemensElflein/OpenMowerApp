@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:niku/niku.dart';
 import 'package:auto_size_text/auto_size_text.dart';

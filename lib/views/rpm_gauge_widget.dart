@@ -7,7 +7,7 @@ import 'package:gauge_indicator/gauge_indicator.dart';
 class RpmGaugeWidget extends StatelessWidget {
   final DoubleSensorState? sensor;
 
-  RpmGaugeWidget({super.key, required this.sensor});
+  const RpmGaugeWidget({super.key, required this.sensor});
 
   @override
   Widget build(BuildContext context) {
