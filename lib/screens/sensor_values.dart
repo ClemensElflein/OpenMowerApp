@@ -13,8 +13,8 @@ final List<String> widgetSortList = [
   'om_v_charge',
   'om_charge_current',
   'om_mow_motor_rpm',
-  'om_mow_motor_temp',
   'om_mow_motor_current',
+  'om_mow_motor_temp',
   'om_mow_esc_temp',
   'om_left_esc_temp',
   'om_right_esc_temp'
