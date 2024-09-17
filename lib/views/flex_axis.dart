@@ -18,7 +18,7 @@ class FlexAxisData {
   double upperCriticalValue = 0;
 
   /// Compute some often used axis vars for easier usage
-  compute(DoubleSensorState? sensor) {
+  compute(DoubleSensorState? sensor, double maxAxisDefault) {
     minValue = (sensor?.minValue ?? 0);
     maxValue = (sensor?.maxValue ?? 0);
 
@@ -31,6 +31,10 @@ class FlexAxisData {
     // Calculative axis values
     minAxis = min(minValue, lowerCriticalValue);
     maxAxis = max(maxValue, upperCriticalValue).ceilToDouble();
+
+    // Some reasonable default if we don't have a maxValue nor upperCritical
+    if (maxAxis == 0) maxAxis = maxAxisDefault;
+
     axisRange = (maxAxis - minAxis);
 
     // Optimize minAxis value
@@ -48,7 +52,10 @@ class FlexAxisData {
 mixin FlexAxis {
   final FlexAxisData _axisData = FlexAxisData();
 
-  void computeFlexAxis(DoubleSensorState? sensor) => _axisData.compute(sensor);
+  /// Compute the flexible axis values out of the [sensor]'s thresholds.
+  /// Use some reasonable [maxAxisDefault] for those cases where the maxAxis value can't be calculated
+  /// because the sensor has no max- nor upperCritical- Value.
+  void computeFlexAxis(DoubleSensorState? sensor, double maxAxisDefault) => _axisData.compute(sensor, maxAxisDefault);
 
   double get minAxis => _axisData.minAxis;
   double get maxAxis => _axisData.maxAxis;

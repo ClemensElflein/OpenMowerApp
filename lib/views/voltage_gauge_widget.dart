@@ -10,7 +10,7 @@ class VoltageGaugeWidget extends StatelessWidget with FlexAxis {
 
   @override
   Widget build(BuildContext context) {
-    computeFlexAxis(sensor);
+    computeFlexAxis(sensor, 30);
     return LinearGauge(
       start: minAxis,
       end: maxAxis,

@@ -10,7 +10,8 @@ class CurrentGaugeWidget extends StatelessWidget with FlexAxis {
 
   @override
   Widget build(BuildContext context) {
-    computeFlexAxis(sensor);
+    computeFlexAxis(sensor, 2);
+
     return LinearGauge(
       start: minAxis,
       end: maxAxis,
