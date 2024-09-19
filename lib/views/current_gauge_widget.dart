@@ -35,12 +35,12 @@ class CurrentGaugeWidget extends StatelessWidget with FlexAxis {
             1, // maxAxis
           ],
           colors: [
-            if (hasCriticalLow) Colors.red.shade400 else Colors.grey.shade400,
-            if (minValue != 0) Colors.green.shade400,
-            if (minValue != 0 && maxValue != 0) Colors.yellow.shade400,
-            if (maxValue != 0) Colors.orange.shade400,
-            if (hasCriticalHigh) Colors.red.shade400,
-            Colors.red.shade400, // maxAxis
+            if (hasCriticalLow) Colors.red.shade300 else Colors.grey.shade400,
+            if (minValue != 0) Colors.green.shade300,
+            if (minValue != 0 && maxValue != 0) Colors.yellow.shade300,
+            if (maxValue != 0) Colors.orange.shade300,
+            if (hasCriticalHigh) Colors.red.shade300,
+            Colors.red.shade300, // maxAxis
           ],
         ),
       ),
@@ -56,7 +56,7 @@ class CurrentGaugeWidget extends StatelessWidget with FlexAxis {
           Pointer(
             value: lowerCriticalValue,
             shape: PointerShape.diamond,
-            color: Colors.red.shade400,
+            color: Colors.red.shade300,
             width: 8,
             height: 8,
             pointerPosition: PointerPosition.center,
@@ -65,7 +65,7 @@ class CurrentGaugeWidget extends StatelessWidget with FlexAxis {
           Pointer(
             value: minValue,
             shape: PointerShape.diamond,
-            color: Colors.green.shade400,
+            color: Colors.green.shade300,
             width: 8,
             height: 8,
             pointerPosition: PointerPosition.center,
@@ -74,7 +74,7 @@ class CurrentGaugeWidget extends StatelessWidget with FlexAxis {
           Pointer(
             value: maxValue,
             shape: PointerShape.diamond,
-            color: Colors.orange.shade400,
+            color: Colors.orange.shade300,
             width: 8,
             height: 8,
             pointerPosition: PointerPosition.center,
@@ -83,7 +83,7 @@ class CurrentGaugeWidget extends StatelessWidget with FlexAxis {
           Pointer(
             value: upperCriticalValue,
             shape: PointerShape.diamond,
-            color: Colors.red.shade400,
+            color: Colors.red.shade300,
             width: 8,
             height: 8,
             pointerPosition: PointerPosition.center,

@@ -22,13 +22,13 @@ class TemperatureGauge extends LinearGauge {
               Pointer(
                 value: sensor?.minValue ?? 40,
                 shape: PointerShape.diamond,
-                color: Colors.green.shade400,
+                color: Colors.green.shade300,
               ),
             if (sensor?.maxValue != 0)
               Pointer(
                 value: sensor?.maxValue ?? 80,
                 shape: PointerShape.diamond,
-                color: Colors.orange.shade400,
+                color: Colors.orange.shade300,
               ),
           ],
           rulers: RulerStyle(
@@ -58,10 +58,10 @@ class TemperatureGauge extends LinearGauge {
                 Colors.greenAccent,
                 Colors.green,
                 Colors.lightGreen,
-                Colors.amber,
-                Colors.orange,
-                Colors.redAccent,
-                Colors.red,
+                Color.fromARGB(148, 255, 193, 7),
+                Color.fromARGB(186, 255, 153, 0),
+                Color.fromARGB(255, 255, 94, 94),
+                Color.fromARGB(255, 236, 75, 63),
               ],
             ),
           ),

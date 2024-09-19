@@ -30,19 +30,19 @@ class RpmGaugeWidget extends StatelessWidget {
           GaugeSegment(
             from: 0,
             to: lowerCriticalValue,
-            color: Colors.red.shade400,
+            color: Colors.red.shade300,
             cornerRadius: const Radius.circular(5),
           ),
           GaugeSegment(
             from: lowerCriticalValue,
             to: minValue,
-            color: Colors.orange.shade400,
+            color: Colors.orange.shade300,
             cornerRadius: const Radius.circular(5),
           ),
           GaugeSegment(
             from: minValue,
             to: maxValue,
-            color: Colors.green.shade400,
+            color: Colors.green.shade300,
             cornerRadius: const Radius.circular(5),
           ),
         ],
