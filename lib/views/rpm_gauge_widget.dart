@@ -21,7 +21,7 @@ class RpmGaugeWidget extends StatelessWidget {
         ((sensor?.maxValue ?? 0) > 0 ? sensor?.maxValue ?? 3800 : 3800);
 
     return RadialGauge(
-      value: (sensor?.value ?? 0),
+      value: (sensor?.value ?? 0).abs(),
       axis: GaugeAxis(
         max: maxValue,
         degrees: 240,
