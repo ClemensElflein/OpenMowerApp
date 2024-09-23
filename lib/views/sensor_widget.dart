@@ -22,7 +22,9 @@ class SensorWidget extends StatelessWidget {
             // RadialGauge Widget has issues with GaugeSegments when used in Column and most other widgets.
             // But ListView is working
             child: n.ListView.children([RpmGaugeWidget(sensor: sensor)])
-              ..p = 12);
+              ..p = 12
+              ..primary = false // Disable scroll
+            );
       case "A":
       case "V":
         // Vertical linear gauges
