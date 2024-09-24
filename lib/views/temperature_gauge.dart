@@ -17,18 +17,24 @@ class TemperatureGauge extends LinearGauge {
               shape: PointerShape.triangle,
               color: Colors.black54,
               pointerPosition: PointerPosition.top,
+              width: 8,
+              height: 8,
             ),
             if (sensor?.minValue != 0)
               Pointer(
                 value: sensor?.minValue ?? 40,
                 shape: PointerShape.diamond,
-                color: Colors.green.shade300,
+                color: Color(0xFF81C784), // Colors.green[300]
+                width: 8,
+                height: 8,
               ),
             if (sensor?.maxValue != 0)
               Pointer(
                 value: sensor?.maxValue ?? 80,
                 shape: PointerShape.diamond,
-                color: Colors.orange.shade300,
+                color: Color(0xFFFFB74D), // Colors.orange[300]
+                width: 8,
+                height: 8,
               ),
           ],
           rulers: RulerStyle(
@@ -49,19 +55,19 @@ class TemperatureGauge extends LinearGauge {
             CustomRulerLabel(text: "100", value: 100),
           ],
           linearGaugeBoxDecoration: const LinearGaugeBoxDecoration(
-            thickness: 5,
+            thickness: 3,
             linearGradient: LinearGradient(
               colors: [
-                Colors.purpleAccent,
-                Colors.blue,
-                Colors.blueAccent,
-                Colors.greenAccent,
-                Colors.green,
-                Colors.lightGreen,
-                Color.fromARGB(148, 255, 193, 7),
-                Color.fromARGB(186, 255, 153, 0),
-                Color.fromARGB(255, 255, 94, 94),
-                Color.fromARGB(255, 236, 75, 63),
+                Color(0xFFBA68C8), // Colors.purple[300]
+                Color(0xFF42A5F5), // Colors.blue[400]
+                Color(0xFF4DD0E1), // Colors.cyan[300]
+                Color(0xFFB2EBF2), // Colors.cyan[100]
+                Color(0xFF81C784), // Colors.green[300]
+                Color(0xFFA5D6A7), // Colors.green[200]
+                Color(0xFFFFF176), // Colors.yellow[300]
+                Color(0xFFFFB74D), // Colors.orange[300]
+                Color(0xFFEF9A9A), // Colors.red[200]
+                Color(0xFFE57373), // Colors.red[300]
               ],
             ),
           ),
