@@ -66,7 +66,7 @@ class RpmGaugeWidget extends StatelessWidget {
           ),
         ],
         style: const GaugeAxisStyle(
-          thickness: 6,
+          thickness: 4,
           background: Colors.white54,
           segmentSpacing: 4,
         ),
