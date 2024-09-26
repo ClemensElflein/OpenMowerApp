@@ -29,7 +29,7 @@ class FlexAxisData {
     upperCriticalValue = (sensor?.upperCriticalValue ?? 0);
 
     // Calculative axis values
-    minAxis = min(minValue, lowerCriticalValue);
+    minAxis = min(minValue, lowerCriticalValue).floorToDouble();
     maxAxis = max(maxValue, upperCriticalValue).ceilToDouble();
 
     // Some reasonable default if we don't have a maxValue nor upperCritical
@@ -37,13 +37,16 @@ class FlexAxisData {
 
     axisRange = (maxAxis - minAxis);
 
-    // Optimize minAxis value
-    double axisDivider = axisRange / 4; // Lets assume 4 divider over the range
-    minAxis =
-        (((minAxis + axisDivider - 1) / axisDivider).toInt() * axisDivider)
-            .ceilToDouble(); // Prev ceil divider
-
-    axisRange = (maxAxis - minAxis);
+    // GeekyAnts linear gauge, at least the vertical one, has issue with misplaced pointer,
+    // if the axisRange is > 1 but uneven (i.e. with an axis range of 9)
+    if (axisRange > 1 && axisRange.floor().isOdd) {
+      if (minAxis.floor().isOdd) {
+        minAxis--;
+      } else {
+        maxAxis++;
+      }
+      axisRange = (maxAxis - minAxis);
+    }
   }
 }
 
@@ -55,7 +58,8 @@ mixin FlexAxis {
   /// Compute the flexible axis values out of the [sensor]'s thresholds.
   /// Use some reasonable [maxAxisDefault] for those cases where the maxAxis value can't be calculated
   /// because the sensor has no max- nor upperCritical- Value.
-  void computeFlexAxis(DoubleSensorState? sensor, double maxAxisDefault) => _axisData.compute(sensor, maxAxisDefault);
+  void computeFlexAxis(DoubleSensorState? sensor, double maxAxisDefault) =>
+      _axisData.compute(sensor, maxAxisDefault);
 
   double get minAxis => _axisData.minAxis;
   double get maxAxis => _axisData.maxAxis;

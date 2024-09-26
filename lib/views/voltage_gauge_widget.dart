@@ -51,20 +51,20 @@ class VoltageGaugeWidget extends StatelessWidget with FlexAxis {
           color: Colors.black54,
           pointerPosition: PointerPosition.left,
         ),
-        if (hasCriticalLow)
-          Pointer(
-            value: lowerCriticalValue,
-            shape: PointerShape.diamond,
-            color: Colors.red.shade300,
-            width: 8,
-            height: 8,
-            pointerPosition: PointerPosition.center,
-          ),
         if (minValue != 0)
           Pointer(
             value: minValue,
             shape: PointerShape.diamond,
             color: Colors.orange.shade300,
+            width: 8,
+            height: 8,
+            pointerPosition: PointerPosition.center,
+          ),
+        if (hasCriticalLow)
+          Pointer(
+            value: lowerCriticalValue,
+            shape: PointerShape.diamond,
+            color: Colors.red.shade300,
             width: 8,
             height: 8,
             pointerPosition: PointerPosition.center,
