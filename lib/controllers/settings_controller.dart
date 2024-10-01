@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:open_mower_app/io/mqtt_connection.dart';
-import 'package:open_mower_app/models/sensor_state.dart';
 import 'package:get_storage/get_storage.dart';
 
 

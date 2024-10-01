@@ -8,7 +8,6 @@ import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/controllers/sensors_controller.dart';
 import 'package:open_mower_app/controllers/settings_controller.dart';
 import 'package:open_mower_app/io/mqtt_connection.dart';
-import 'package:open_mower_app/models/sensor_state.dart';
 import 'package:open_mower_app/screens/main_screen.dart';
 
 void main() async {
@@ -19,8 +18,8 @@ void main() async {
   settingsController.load();
 
   // Second the robotStateController. MQTTConnection needs it
-  final robotStateController = Get.put(RobotStateController());
-  final sensorStateController = Get.put(SensorsController());
+  Get.put(RobotStateController());
+  Get.put(SensorsController());
 
   initServices();
   final MqttConnection mqttConnection = Get.find();

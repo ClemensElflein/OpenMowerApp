@@ -1,6 +1,5 @@
 // GENERATED USING https://fluttershapemaker.com/
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class LogoWidget extends StatelessWidget {
   const LogoWidget({super.key, required this.size});
@@ -34,9 +33,9 @@ class LogoCustomPainter extends CustomPainter {
     path_1.cubicTo(size.width*0.4351716,size.height*0.6241654,size.width*0.4185602,size.height*0.7240809,size.width*0.3965646,size.height*0.7240809);
     path_1.cubicTo(size.width*0.3744554,size.height*0.7240809,size.width*0.3578447,size.height*0.6241654,size.width*0.3578447,size.height*0.4985846);
 
-    Paint paint_1_fill = Paint()..style=PaintingStyle.fill;
-    paint_1_fill.color = color.withOpacity(1.0);
-    canvas.drawPath(path_1,paint_1_fill);
+    Paint paint1Fill = Paint()..style=PaintingStyle.fill;
+    paint1Fill.color = color.withOpacity(1.0);
+    canvas.drawPath(path_1,paint1Fill);
 
     Path path_2 = Path();
     path_2.moveTo(size.width*0.4952065,size.height*0.5525956);
@@ -56,9 +55,9 @@ class LogoCustomPainter extends CustomPainter {
     path_2.lineTo(size.width*0.4481216,size.height*0.3885368);
     path_2.close();
 
-    Paint paint_2_fill = Paint()..style=PaintingStyle.fill;
-    paint_2_fill.color = color.withOpacity(1.0);
-    canvas.drawPath(path_2,paint_2_fill);
+    Paint paint2Fill = Paint()..style=PaintingStyle.fill;
+    paint2Fill.color = color.withOpacity(1.0);
+    canvas.drawPath(path_2,paint2Fill);
 
     Path path_3 = Path();
     path_3.moveTo(size.width*0.5603936,size.height*0.5323456);
@@ -77,9 +76,9 @@ class LogoCustomPainter extends CustomPainter {
     path_3.cubicTo(size.width*0.5585608,size.height*0.7085551,size.width*0.5511142,size.height*0.7240809,size.width*0.5434398,size.height*0.7240809);
     path_3.cubicTo(size.width*0.5276301,size.height*0.7240809,size.width*0.5142265,size.height*0.6572426,size.width*0.5142265,size.height*0.5532721);
 
-    Paint paint_3_fill = Paint()..style=PaintingStyle.fill;
-    paint_3_fill.color = color.withOpacity(1.0);
-    canvas.drawPath(path_3,paint_3_fill);
+    Paint paint3Fill = Paint()..style=PaintingStyle.fill;
+    paint3Fill.color = color.withOpacity(1.0);
+    canvas.drawPath(path_3,paint3Fill);
 
     Path path_4 = Path();
     path_4.moveTo(size.width*0.5813624,size.height*0.3885368);
@@ -97,9 +96,9 @@ class LogoCustomPainter extends CustomPainter {
     path_4.lineTo(size.width*0.5813624,size.height*0.3885368);
     path_4.close();
 
-    Paint paint_4_fill = Paint()..style=PaintingStyle.fill;
-    paint_4_fill.color = color.withOpacity(1.0);
-    canvas.drawPath(path_4,paint_4_fill);
+    Paint paint4Fill = Paint()..style=PaintingStyle.fill;
+    paint4Fill.color = color.withOpacity(1.0);
+    canvas.drawPath(path_4,paint4Fill);
 
     Path path_5 = Path();
     path_5.moveTo(size.width*0.6447162,size.height*0.2798382);
@@ -121,9 +120,9 @@ class LogoCustomPainter extends CustomPainter {
     path_5.lineTo(size.width*0.6447162,size.height*0.2798382);
     path_5.close();
 
-    Paint paint_5_fill = Paint()..style=PaintingStyle.fill;
-    paint_5_fill.color = color.withOpacity(1.0);
-    canvas.drawPath(path_5,paint_5_fill);
+    Paint paint5Fill = Paint()..style=PaintingStyle.fill;
+    paint5Fill.color = color.withOpacity(1.0);
+    canvas.drawPath(path_5,paint5Fill);
 
     Path path_6 = Path();
     path_6.moveTo(size.width*0.7845976,size.height*0.5532721);
@@ -137,9 +136,9 @@ class LogoCustomPainter extends CustomPainter {
     path_6.cubicTo(size.width*0.7935309,size.height*0.6484632,size.width*0.7805864,size.height*0.7240809,size.width*0.7642046,size.height*0.7240809);
     path_6.cubicTo(size.width*0.7478228,size.height*0.7240809,size.width*0.7348784,size.height*0.6484632,size.width*0.7348784,size.height*0.5532721);
 
-    Paint paint_6_fill = Paint()..style=PaintingStyle.fill;
-    paint_6_fill.color = color.withOpacity(1.0);
-    canvas.drawPath(path_6,paint_6_fill);
+    Paint paint6Fill = Paint()..style=PaintingStyle.fill;
+    paint6Fill.color = color.withOpacity(1.0);
+    canvas.drawPath(path_6,paint6Fill);
 
     Path path_7 = Path();
     path_7.moveTo(size.width*0.7976606,size.height*0.3885368);
@@ -164,9 +163,9 @@ class LogoCustomPainter extends CustomPainter {
     path_7.lineTo(size.width*0.7976606,size.height*0.3885368);
     path_7.close();
 
-    Paint paint_7_fill = Paint()..style=PaintingStyle.fill;
-    paint_7_fill.color = color.withOpacity(1.0);
-    canvas.drawPath(path_7,paint_7_fill);
+    Paint paint7Fill = Paint()..style=PaintingStyle.fill;
+    paint7Fill.color = color.withOpacity(1.0);
+    canvas.drawPath(path_7,paint7Fill);
 
     Path path_8 = Path();
     path_8.moveTo(size.width*0.9282658,size.height*0.5323456);
@@ -185,9 +184,9 @@ class LogoCustomPainter extends CustomPainter {
     path_8.cubicTo(size.width*0.9264317,size.height*0.7085551,size.width*0.9189832,size.height*0.7240809,size.width*0.9113100,size.height*0.7240809);
     path_8.cubicTo(size.width*0.8955022,size.height*0.7240809,size.width*0.8820961,size.height*0.6572426,size.width*0.8820961,size.height*0.5532721);
 
-    Paint paint_8_fill = Paint()..style=PaintingStyle.fill;
-    paint_8_fill.color = color.withOpacity(1.0);
-    canvas.drawPath(path_8,paint_8_fill);
+    Paint paint8Fill = Paint()..style=PaintingStyle.fill;
+    paint8Fill.color = color.withOpacity(1.0);
+    canvas.drawPath(path_8,paint8Fill);
 
     Path path_9 = Path();
     path_9.moveTo(size.width*0.9492327,size.height*0.3885368);
@@ -201,9 +200,9 @@ class LogoCustomPainter extends CustomPainter {
     path_9.lineTo(size.width*0.9492327,size.height*0.3885368);
     path_9.close();
 
-    Paint paint_9_fill = Paint()..style=PaintingStyle.fill;
-    paint_9_fill.color = color.withOpacity(1.0);
-    canvas.drawPath(path_9,paint_9_fill);
+    Paint paint9Fill = Paint()..style=PaintingStyle.fill;
+    paint9Fill.color = color.withOpacity(1.0);
+    canvas.drawPath(path_9,paint9Fill);
 
     Path path_10 = Path();
     path_10.moveTo(size.width*0.2564017,size.height*0.2318456);
@@ -247,9 +246,9 @@ class LogoCustomPainter extends CustomPainter {
     path_10.cubicTo(size.width*0.2444517,size.height*0.2664559,size.width*0.2500393,size.height*0.2664338,size.width*0.2553194,size.height*0.2664743);
     path_10.cubicTo(size.width*0.2586974,size.height*0.2665037,size.width*0.2595608,size.height*0.2388860,size.width*0.2564017,size.height*0.2318456);
 
-    Paint paint_10_fill = Paint()..style=PaintingStyle.fill;
-    paint_10_fill.color = color.withOpacity(1.0);
-    canvas.drawPath(path_10,paint_10_fill);
+    Paint paint10Fill = Paint()..style=PaintingStyle.fill;
+    paint10Fill.color = color.withOpacity(1.0);
+    canvas.drawPath(path_10,paint10Fill);
 
     Path path_11 = Path();
     path_11.moveTo(size.width*0.2427567,size.height*0.6462426);
@@ -315,9 +314,9 @@ class LogoCustomPainter extends CustomPainter {
     path_11.lineTo(size.width*0.2878247,size.height*0.5348529);
     path_11.cubicTo(size.width*0.2878247,size.height*0.5280919,size.width*0.2868952,size.height*0.5226140,size.width*0.2857480,size.height*0.5226140);
 
-    Paint paint_11_fill = Paint()..style=PaintingStyle.fill;
-    paint_11_fill.color = color.withOpacity(1.0);
-    canvas.drawPath(path_11,paint_11_fill);
+    Paint paint11Fill = Paint()..style=PaintingStyle.fill;
+    paint11Fill.color = color.withOpacity(1.0);
+    canvas.drawPath(path_11,paint11Fill);
 
   }
 

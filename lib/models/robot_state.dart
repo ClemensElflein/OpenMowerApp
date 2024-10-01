@@ -1,4 +1,3 @@
-import 'package:open_mower_app/models/sensor_state.dart';
 
 class RobotState {
   String name = "Open Mower";

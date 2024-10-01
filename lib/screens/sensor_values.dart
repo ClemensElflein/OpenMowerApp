@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:niku/namespace.dart' as n;
-import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/controllers/sensors_controller.dart';
 import 'package:open_mower_app/views/robot_state_widget.dart';
 import 'package:open_mower_app/views/sensor_widget.dart';
@@ -13,10 +12,11 @@ final List<String> widgetSortList = [
   'om_v_battery',
   'om_v_charge',
   'om_charge_current',
-  'om_left_esc_temp',
-  'om_mow_esc_temp',
-  'om_mow_motor_temp',
+  'om_mow_motor_rpm',
   'om_mow_motor_current',
+  'om_mow_motor_temp',
+  'om_mow_esc_temp',
+  'om_left_esc_temp',
   'om_right_esc_temp'
 ];
 
