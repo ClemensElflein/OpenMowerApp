@@ -22,10 +22,10 @@ class RpmGaugeWidget extends StatelessWidget {
 
     // Use some reasonable defaults (for YF-C500 model) if not given
     double lowerCriticalValue = ((sensor?.hasCriticalLow ?? false)
-        ? sensor?.lowerCriticalValue ?? 2300
-        : 2300);
+        ? sensor?.lowerCriticalValue ?? 3300
+        : 3300);
     double minValue =
-        ((sensor?.minValue ?? 0) > 0 ? sensor?.minValue ?? 2800 : 2800);
+        ((sensor?.minValue ?? 0) > 0 ? sensor?.minValue ?? 3500 : 3500);
 
     // Get maxValue for this sensor name from _maxValues static buffer,
     // or set (and return) it to given/default value
