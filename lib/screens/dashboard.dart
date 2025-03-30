@@ -12,32 +12,100 @@ class Dashboard extends GetView<RobotStateController> {
   Dashboard({super.key});
 
   final RemoteController remoteControl = Get.find();
+  
+  // Helper method to format the robot status text
+  String _getStatusText(String status) {
+    // Convert UPPERCASE_WITH_UNDERSCORES to Title Case With Spaces
+    if (status.isEmpty) return "Unknown Status";
+    
+    // Replace underscores with spaces and convert to title case
+    final words = status.split('_');
+    final formattedWords = words.map((word) {
+      if (word.isEmpty) return '';
+      return word[0] + word.substring(1).toLowerCase();
+    });
+    
+    return formattedWords.join(' ');
+  }
+  
+  // Helper method to get status color based on state
+  Color _getStatusColor(String status) {
+    if (status.contains('ERROR') || status.contains('EMERGENCY')) {
+      return Colors.red.shade400;
+    } else if (status == 'IDLE') {
+      return Colors.blue.shade400;
+    } else if (status == 'MOWING') {
+      return Colors.green.shade400;
+    } else if (status == 'DOCKING' || status == 'CHARGING') {
+      return Colors.amber.shade400;
+    } else if (status == 'AREA_RECORDING') {
+      return Colors.purple.shade400;
+    } else {
+      return Colors.grey.shade400;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return n.Column([
-      const RobotStateWidget(),
       n.Stack([
         Obx(() => MapWidget(
             centerOnRobot:
-                controller.robotState.value.currentState == "AREA_RECORDING")),
-        n.Column([
-          Card(
-            elevation: 3,
-            child: n.Column([
-              "Current State:".bodyLarge..m = 4,
-              Obx(() => Text(controller.robotState.value.currentState,
-                      style: Theme.of(context).textTheme.headlineMedium)
-                  .niku
-                ..m = 4)
-            ])
-              ..p = 16
-              ..mainAxisAlignment = MainAxisAlignment.start
-              ..crossAxisAlignment = CrossAxisAlignment.start
-              ..fullWidth,
+                controller.robotState.value.currentState == "XD")),
+        const Positioned(
+          top: 0,
+          right: 0,
+          child: RobotStateWidget(),
+        ),
+        Positioned(
+          top: 20,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: Obx(() {
+              final state = controller.robotState.value.currentState;
+              final statusColor = _getStatusColor(state);
+              
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.black54,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      spreadRadius: 1,
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: statusColor,
+                        shape: BoxShape.circle,
+                      ),
+                      margin: const EdgeInsets.only(right: 8),
+                    ),
+                    Text(
+                      _getStatusText(state),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
           ),
-        ])
-          ..p = 16,
+        ),
     Obx(()=>(controller.robotState.value.currentState == "AREA_RECORDING") ?
         Container(
             padding: const EdgeInsets.all(30.0),

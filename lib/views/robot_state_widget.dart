@@ -8,69 +8,130 @@ import 'package:niku/namespace.dart' as n;
 class RobotStateWidget extends GetView<RobotStateController> {
   const RobotStateWidget({super.key});
 
-  Icon getMqttIcon(bool isConnected) {
-    return isConnected
+  Widget getMqttWidget(bool isConnected) {
+    final icon = isConnected
         ? const Icon(Icons.link, color: Colors.black54)
         : Icon(Icons.link_off, color: Colors.red[200]);
+    
+    final message = isConnected
+        ? 'Connected'
+        : 'Disconnected - check server connection';
+        
+    return Tooltip(
+      message: message,
+      preferBelow: true,
+      showDuration: const Duration(seconds: 3),
+      waitDuration: const Duration(milliseconds: 100),
+      triggerMode: TooltipTriggerMode.tap,
+      child: icon,
+    );
   }
 
-  Icon getGpsIcon(percent) {
-    // TODO: Need gps_enabled flag for a reliable gps_not_fixed/gps_off icon
-    if (percent > 0.75) {
-      return Icon(Icons.gps_fixed, color: Colors.green[200]);
-    } else if (percent >= 0.25) {
-      return Icon(Icons.gps_not_fixed, color: Colors.orange[200]);
+  Widget getWifiWidget() {
+    if (controller.robotState.value.wifiPercent == 0) {
+      // WiFi signal is not reported
+      return const SizedBox.shrink();
     }
-    return Icon(Icons.gps_off, color: Colors.grey[400]);
+
+    const icon = Icon(Icons.network_wifi_3_bar, color: Colors.black54);
+    
+    // Convert wifiPercent to a human-readable format
+    String wifiStrength;
+    double percent = controller.robotState.value.wifiPercent;
+    
+    if (percent > 0.8) {
+      wifiStrength = 'Excellent';
+    } else if (percent > 0.6) {
+      wifiStrength = 'Good';
+    } else if (percent > 0.4) {
+      wifiStrength = 'Moderate';
+    } else if (percent > 0.2) {
+      wifiStrength = 'Poor';
+    } else {
+      wifiStrength = 'Very Poor';
+    }
+    
+    return Tooltip(
+      message: 'WiFi Signal: $wifiStrength (${(percent * 100).toInt()}%)',
+      preferBelow: true,
+      showDuration: const Duration(seconds: 3),
+      waitDuration: const Duration(milliseconds: 100),
+      triggerMode: TooltipTriggerMode.tap,
+      child: icon,
+    );
+  }
+
+  Widget getGpsWidget(double percent) {
+    Icon icon;
+    String message;
+    
+    // Get GPS accuracy in centimeters
+    double accuracyCm = controller.robotState.value.posAccuracy * 100;
+    String accuracy = accuracyCm.toStringAsFixed(1); // Format to 1 decimal place
+    
+    if (percent > 0.75) {
+      icon = Icon(Icons.gps_fixed, color: Colors.green[200]);
+      message = 'GPS: strong\nAccuracy: $accuracy cm';
+    } else if (percent >= 0.25) {
+      icon = Icon(Icons.gps_not_fixed, color: Colors.orange[200]);
+      message = 'GPS: moderate\nAccuracy: $accuracy cm';
+    } else {
+      icon = Icon(Icons.gps_off, color: Colors.grey[400]);
+      message = 'GPS: weak or unavailable';
+    }
+    
+    return Tooltip(
+      message: message,
+      textAlign: TextAlign.center,
+      preferBelow: true,
+      showDuration: const Duration(seconds: 3),
+      waitDuration: const Duration(milliseconds: 100),
+      triggerMode: TooltipTriggerMode.tap,
+      child: icon,
+    );
+  }
+
+  Widget getBatteryWidget(double percent, bool charging) {
+    final icon = getBatteryIcon(percent, charging);
+    String message;
+    
+    if (charging) {
+      message = 'Battery: ${(percent * 100).toInt()}% (Charging)';
+    } else {
+      message = 'Battery: ${(percent * 100).toInt()}%';
+    }
+    
+    return Tooltip(
+      message: message,
+      preferBelow: true,
+      showDuration: const Duration(seconds: 3),
+      waitDuration: const Duration(milliseconds: 100),
+      triggerMode: TooltipTriggerMode.tap,
+      child: icon,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-        elevation: 5,
-        child: Obx(() =>n.Row([
-          EmergencyWidget(emergency: controller.robotState.value.isEmergency),
-          RichText(
-              text: TextSpan(
-                  style: const TextStyle(color: Colors.black87),
-                  children: [
-                const TextSpan(text: "MQTT: "),
-                WidgetSpan(
-                    child: getMqttIcon(controller.robotState.value.isConnected),
-                    alignment: PlaceholderAlignment.middle),
-              ])),
-          /*RichText(
-              text: const TextSpan(
-                  style: TextStyle(color: Colors.black87),
-                  children: [
-                TextSpan(text: "WiFi: "),
-                WidgetSpan(
-                    child:
-                        Icon(Icons.network_wifi_3_bar, color: Colors.black54),
-                    alignment: PlaceholderAlignment.middle),
-              ])),*/
-          RichText(
-              text: TextSpan(
-                  style: const TextStyle(color: Colors.black87),
-                  children: [
-                const TextSpan(text: "GPS: "),
-                WidgetSpan(
-                    child: Obx(() => getGpsIcon(controller.robotState.value.gpsPercent)),
-                    alignment: PlaceholderAlignment.middle),
-              ])),
-          RichText(
-              text: TextSpan(
-                  style: const TextStyle(color: Colors.black87),
-                  children: [
-                const TextSpan(text: "Battery: "),
-                WidgetSpan(
-                    child: getBatteryIcon(controller.robotState.value.batteryPercent, controller.robotState.value.isCharging),
-                    alignment: PlaceholderAlignment.middle),
-              ]))
+    return Obx(() => n.Row([
+          Tooltip(
+            message: controller.robotState.value.isEmergency 
+                ? 'Emergency Stop Activated'
+                : 'Status: ${controller.robotState.value.currentState}',
+            preferBelow: true,
+            showDuration: const Duration(seconds: 3),
+            waitDuration: const Duration(milliseconds: 100),
+            triggerMode: TooltipTriggerMode.tap,
+            child: EmergencyWidget(emergency: controller.robotState.value.isEmergency),
+          ),
+          getMqttWidget(controller.robotState.value.isConnected),
+          getWifiWidget(),
+          getGpsWidget(controller.robotState.value.gpsPercent),
+          getBatteryWidget(controller.robotState.value.batteryPercent, controller.robotState.value.isCharging),
         ])
           ..mainAxisAlignment = MainAxisAlignment.end
-          ..m = 16
-          ..gap = 8));
+          ..m = 8
+          ..gap = 4);
   }
 
   /* Place this ugly function last.
