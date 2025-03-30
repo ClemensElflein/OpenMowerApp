@@ -183,6 +183,45 @@ class Dashboard extends GetView<RobotStateController> {
           ..gap = 8
           ..px = 16
           ..py = 8,
+        n.Row([
+          controller.hasAction("mower_logic:area_recording/auto_point_collecting_disable")
+              ? (n.Button.elevatedIcon(
+              "Disable auto collecting".n, n.Icon(Icons.route))
+            ..visible = controller
+                .hasAction("mower_logic:area_recording/auto_point_collecting_disable")
+            ..onPressed = () {
+              remoteControl
+                  .callAction("mower_logic:area_recording/auto_point_collecting_disable");
+            }
+            ..style = n.ButtonStyle(backgroundColor: Colors.orangeAccent)
+            ..elevation = 2
+            ..p = 16)
+              : (n.Button.elevatedIcon(
+              "Enable auto collecting".n, n.Icon(Icons.route))
+            ..visible = controller
+                .hasAction("mower_logic:area_recording/auto_point_collecting_enable")
+            ..onPressed = () {
+              remoteControl
+                  .callAction("mower_logic:area_recording/auto_point_collecting_enable");
+            }
+            ..elevation = 2
+            ..p = 16),
+          n.Button.elevatedIcon(
+              "Add point".n, n.Icon(Icons.add_location))
+            ..visible = controller
+                .hasAction("mower_logic:area_recording/collect_point")
+            ..onPressed = () {
+              remoteControl
+                  .callAction("mower_logic:area_recording/collect_point");
+            }
+            ..style = n.ButtonStyle(backgroundColor: Colors.green)
+            ..elevation = 2
+            ..expanded
+            ..p = 16,
+        ])
+          ..gap = 8
+          ..px = 16
+          ..py = 8,
       ])
         ..py = 8;
     }

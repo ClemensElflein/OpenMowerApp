@@ -187,13 +187,23 @@ class MqttConnection  {
 
   void parseSensorInfos(obj) {
     debugPrint("Got new sensor infos, refreshing");
-    for(final sensorInfo in obj["d"]) {
-      switch(sensorInfo["value_type"]) {
-        case "DOUBLE": {
-          // Got a double sensor
-          final sensor = DoubleSensorState(sensorInfo["sensor_name"], sensorInfo["min_value"], sensorInfo["max_value"], sensorInfo["unit"]);
-          sensorsController.sensorStates[sensorInfo["sensor_id"]] = sensor;
-        }
+    for (final sensorInfo in obj["d"]) {
+      switch (sensorInfo["value_type"]) {
+        case "DOUBLE":
+          {
+            // Got a double sensor
+            final sensor = DoubleSensorState(
+                sensorInfo["sensor_name"],
+                sensorInfo["unit"],
+                sensorInfo["min_value"],
+                sensorInfo["max_value"],
+                sensorInfo["has_min_max"] == 1,
+                sensorInfo["lower_critical_value"],
+                sensorInfo["has_critical_low"] == 1,
+                sensorInfo["upper_critical_value"],
+                sensorInfo["has_critical_high"] == 1);
+            sensorsController.sensorStates[sensorInfo["sensor_id"]] = sensor;
+          }
       }
     }
     sensorsController.sensorStates.refresh();
