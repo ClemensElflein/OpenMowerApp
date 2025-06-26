@@ -8,8 +8,13 @@ class RobotState {
   String currentState = "Unknown";
   String currentSubState = "Unknown";
 
+  int currentArea = -1;
+  int currentPath = 0;
+  int currentPathIndex = 0;
+
   bool isRunning = false;
-  bool isCharging = false;
+  bool isCharging = false;  
+  bool rainDetected = false;
   bool isEmergency = false;
   bool isConnected = false;
 
