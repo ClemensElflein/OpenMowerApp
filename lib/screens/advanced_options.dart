@@ -11,25 +11,19 @@ class AdvancedOptions extends GetView<RobotStateController> {
   Widget build(BuildContext context) {
     return n.Column([
       n.Row([
-        Expanded(
-            child: RichText(
-          text: TextSpan(
-            children: [
-              const TextSpan(
-                  text: "Current Area:   ",
+            const Text("Current Area:   ",
                   style: TextStyle(fontSize: 22, color: Colors.black)),
-              TextSpan(
-                  text: "3",
-                  style: const TextStyle(
+             Obx(() => Text( controller.robotState.value.currentArea.toString(),
+                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue)),
-            ],
-          ),
-        )),
-        Flexible(
-            child: SizedBox(
-                width: 300,
+                      color: Colors.blue)) ,
+            ),
+            const SizedBox(
+              width: 40, // your of space
+            ),
+            SizedBox(
+                width: 200,
                 child: (n.Button.elevatedIcon("Skip current Area".n,n.Icon(Icons.skip_next))
                       ..enable = (controller
                               .hasAction("mower_logic:mowing/skip_area"))
@@ -37,7 +31,7 @@ class AdvancedOptions extends GetView<RobotStateController> {
                         remoteControl.callAction("mower_logic:mowing/skip_area");
                       })
                   ..elevation = 2
-                  ..p = 16)),
+                  ..p = 16),
       ])
         ..gap = 8
         ..px = 16
