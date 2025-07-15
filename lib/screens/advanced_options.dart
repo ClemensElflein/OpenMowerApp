@@ -37,7 +37,8 @@ class AdvancedOptions extends GetView<RobotStateController> {
         ..px = 16
         ..py = 8,
       n.Row([
-        !controller.hasAction("mower_logic:area_recording/stop_manual_mowing")
+        Obx(
+         () =>!controller.hasAction("mower_logic:area_recording/stop_manual_mowing")
           ?(n.Button.elevatedIcon("Start Manual Mowing".n, n.Icon(Icons.autorenew))
           ..enable = (controller.hasAction("mower_logic:area_recording/start_manual_mowing"))
           ..onPressed = () {
@@ -55,6 +56,7 @@ class AdvancedOptions extends GetView<RobotStateController> {
                 }
           ..elevation = 2
           ..p = 16)
+        )
       ])
         ..gap = 8
         ..px = 16
