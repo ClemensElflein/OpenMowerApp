@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:get/get.dart';
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart' show rootBundle;
 
@@ -10,9 +11,14 @@ import 'package:open_mower_app/models/map_overlay_model.dart';
 import 'package:open_mower_app/models/robot_state.dart';
 
 class MapWidget extends GetView<RobotStateController> {
-  const MapWidget({super.key, required this.centerOnRobot});
+  const MapWidget({
+    super.key, 
+    required this.centerOnRobot, 
+    this.robotLength = 0.6, // 60cm by default
+  });
 
   final bool centerOnRobot;
+  final double robotLength; // Robot size in meters
 
   // load the image async and then draw with `canvas.drawImage(image, Offset.zero, Paint());`
   Future<ui.Image> loadImageAsset(String assetName) async {
@@ -22,6 +28,9 @@ class MapWidget extends GetView<RobotStateController> {
 
   @override
   Widget build(BuildContext context) {
+    // Create a future for the robot image
+    final robotImageFuture = loadImageAsset('assets/yardforce.png');
+    
     return InteractiveViewer(
         panEnabled: !centerOnRobot,
         scaleEnabled: !centerOnRobot,
@@ -31,34 +40,40 @@ class MapWidget extends GetView<RobotStateController> {
             width: double.infinity,
             height: double.infinity,
             child: RepaintBoundary(
-                child: Obx(() => CustomPaint(
+                child: FutureBuilder<ui.Image>(
+                  future: robotImageFuture,
+                  builder: (context, snapshot) {
+                    // This builder is called whenever the future's state changes
+                    return Obx(() => CustomPaint(
                       isComplex: true,
                       painter: MapPainter(
                           controller.map.value,
                           controller.mapOverlay.value,
                           controller.robotState.value,
-                          centerOnRobot),
-                    )))));
+                          centerOnRobot,
+                          robotLength,
+                          snapshot.data, // Pass the actual image, will be null until loaded
+                      ),
+                    ));
+                  },
+                )
+            )));
   }
 }
 
+// A simple painter that just subscribes to the repaint notifier
+// Not needed anymore with the FutureBuilder approach
+
 class MapPainter extends CustomPainter {
-  MapPainter(this.mapModel, this.mapOverlayModel, this.robotState,
-      this.centerOnRobot) {
-    // "robot" arrow
-    path_0.reset();
-    path_0.moveTo(0.1979167, 0.8750000);
-    path_0.lineTo(0.1666667, 0.8437500);
-    path_0.lineTo(0.5000000, 0.08333333);
-    path_0.lineTo(0.8333333, 0.8437500);
-    path_0.lineTo(0.8020833, 0.8750000);
-    path_0.lineTo(0.5000000, 0.7375000);
-
-    path_0.moveTo(0.5000000, 0.6708333);
-    path_0.close();
-
-    // "home" icon
-
+  MapPainter(
+    this.mapModel, 
+    this.mapOverlayModel, 
+    this.robotState,
+    this.centerOnRobot,
+    this.robotLength,
+    this.robotImage
+  ) {
+    // "home" icon (keep this part for the dock)
     path_1.moveTo(0.2291667, 0.8125000);
     path_1.lineTo(0.3854167, 0.8125000);
     path_1.lineTo(0.3854167, 0.5520833);
@@ -87,6 +102,8 @@ class MapPainter extends CustomPainter {
   final MapOverlayModel mapOverlayModel;
   final RobotState robotState;
   final bool centerOnRobot;
+  final double robotLength; // Robot size in meters (configurable)
+  final ui.Image? robotImage;
 
   final _backgroundPaint = Paint()
     ..color = const Color.fromRGBO(0, 0, 0, 0.1)
@@ -104,21 +121,11 @@ class MapPainter extends CustomPainter {
   final _obstaclePaint = Paint()
     ..color = const Color.fromRGBO(50, 50, 50, 1.0)
     ..style = PaintingStyle.fill;
-  final _coordinateLinesPaint = Paint()
-    ..color = const Color.fromRGBO(210, 210, 210, 1)
-    ..style = PaintingStyle.stroke
-    ..strokeCap = StrokeCap.square
-    ..strokeWidth = 0;
-  final _coordinateLinesPaintOrigin = Paint()
-    ..color = const Color.fromRGBO(190, 190, 190, 1)
-    ..style = PaintingStyle.stroke
-    ..strokeCap = StrokeCap.square
-    ..strokeWidth = 0.1;
 
   final _robotPaint = Paint()
     ..color = const Color.fromRGBO(25, 25, 25, 1.0)
     ..style = PaintingStyle.fill;
-
+  
   final Path path_0 = Path();
   final Path path_1 = Path();
 
@@ -131,37 +138,6 @@ class MapPainter extends CustomPainter {
         Rect.fromLTRB(25, 150, size.width - 25, size.height - 25);
 
     canvas.drawRect(backgroundRect, _backgroundPaint);
-    // backgroundPattern.paintOnRect(canvas, backgroundRect.size, backgroundRect);
-
-/*
-    canvas.drawRect(
-        backgroundRect,
-        Paint()
-          ..color = Colors.green
-          ..style = PaintingStyle.fill);
-    canvas.drawRect(
-        drawingRect,
-        Paint()
-          ..color = Colors.greenAccent
-          ..style = PaintingStyle.fill);
-
-    canvas.drawLine(
-        drawingRect.topLeft,
-        drawingRect.bottomRight,
-        Paint()
-          ..color = Colors.red
-          ..strokeWidth = 2
-          ..style = PaintingStyle.stroke);
-    canvas.drawLine(
-        drawingRect.topRight,
-        drawingRect.bottomLeft,
-        Paint()
-          ..color = Colors.red
-          ..strokeWidth = 2
-          ..style = PaintingStyle.stroke);
-*/
-
-    // don't try to draw map if it has size 0
 
     double mapWidth = max(mapModel.width, 15);
     double mapHeight = max(mapModel.height, 15);
@@ -250,42 +226,6 @@ class MapPainter extends CustomPainter {
     axes.moveTo(0, startY.toDouble());
     axes.lineTo(0, startY + height);
 
-    canvas.drawPath(grid, _coordinateLinesPaint);
-    canvas.drawPath(axes, _coordinateLinesPaintOrigin);
-    canvas.drawCircle(Offset.zero, 0.5,
-        _coordinateLinesPaintOrigin..style = PaintingStyle.fill);
-
-/*
-    for (final area in mapModel.mowingAreas) {
-      canvas.drawShadow(area.outline, Colors.black, 5, false);
-    }
-    for (final area in mapModel.navigationAreas) {
-      canvas.drawShadow(area.outline, Colors.black, 5, false);
-    }
-*/
-
-    //
-    // for(final area in mapModel.navigationAreas) {
-    //   shadowPath = Path.combine(PathOperation.union, shadowPath, area.outline);
-    // }
-    //
-    // remove all obstacles
-    // for(final area in mapModel.mowingAreas) {
-    //   for(final obstacle in area.obstacles) {
-    //     shadowPath =
-    //         Path.combine(PathOperation.difference, shadowPath, obstacle);
-    //   }
-    // }
-    //
-    // for(final area in mapModel.navigationAreas) {
-    //   for(final obstacle in area.obstacles) {
-    //     shadowPath =
-    //         Path.combine(PathOperation.difference, shadowPath, obstacle);
-    //   }
-    // }
-
-    //
-
     for (final area in mapModel.navigationAreas) {
       canvas.drawPath(area.outline, _navigationFillPaint);
       canvas.drawPath(area.outline, _mowOutlinePaint);
@@ -328,19 +268,51 @@ class MapPainter extends CustomPainter {
 
     // Draw robot icon
     {
+      // Save current canvas state
+      canvas.save();
+      
+      // Move to robot position
       canvas.translate(robotState.posX, robotState.posY);
-      // canvas.drawCircle(Offset.zero, 0.3, Paint()..color = Colors.blueAccent.withOpacity(0.8) ..style = PaintingStyle.fill);
-      canvas.drawCircle(
-          Offset.zero,
-          0.3,
-          Paint()
-            ..color = Colors.blueAccent.withOpacity(0.4)
-            ..style = PaintingStyle.fill);
+      
+      // Rotate according to robot heading
+      // Subtract pi/2 to make the robot's front point in the heading direction
+      // The image is a top-view with robot heading south
+      canvas.rotate(-(robotState.heading + pi / 2) % (2.0 * pi));
+      
+      if (robotImage != null) {
+        // Calculate the scale to make the robot the correct size
+        // Convert image dimensions to map scale
+        final aspectRatio = robotImage!.width / robotImage!.height;
+        final robotWidth = robotLength * aspectRatio;
 
-      canvas.rotate(-(robotState.heading - pi / 2) % (2.0 * pi));
-      canvas.scale(0.5);
-      canvas.translate(-0.5, -0.5);
-      canvas.drawPath(path_0, _robotPaint);
+        // Scale and position the image
+        // Center the image on the robot position
+        final rect = Rect.fromCenter(
+          center: Offset.zero,
+          width: robotWidth,
+          height: robotLength
+        );
+
+        // Draw the robot image
+        canvas.drawImageRect(
+            robotImage!,
+          Rect.fromLTWH(0, 0, robotImage!.width.toDouble(), robotImage!.height.toDouble()),
+          rect,
+          Paint()
+        );
+      } else {
+        // Only show a simple position indicator if image is not loaded
+        canvas.drawCircle(
+          Offset.zero,
+          0.15,
+          Paint()
+            ..color = Colors.red.withOpacity(0.7)
+            ..style = PaintingStyle.fill
+        );
+      }
+      
+      // Restore canvas to previous state
+      canvas.restore();
     }
   }
 
@@ -367,12 +339,12 @@ class MapPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     if (oldDelegate is MapPainter) {
+      // Repaint if robot state or map model changed, or if image has been loaded since last paint
       if (oldDelegate.robotState != robotState ||
-          oldDelegate.mapModel != mapModel) {
-        // print("new map model, should repaint!");
+          oldDelegate.mapModel != mapModel ||
+          oldDelegate.robotImage != robotImage
+      ) {
         return true;
-      } else {
-        // print("same map model, should NOT repaint!");
       }
     }
     return false;
