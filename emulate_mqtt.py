@@ -7,6 +7,7 @@ import random
 
 topic = "python/mqtt"
 client_id = f'python-mqtt-{random.randint(0, 1000)}'
+current_area = 0
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, reason_code, properties):
@@ -39,7 +40,9 @@ def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
 
 def robot_state_publish():
-    
+
+    global current_area 
+    current_area = current_area + 1
     j ={ "d":
         {
         "battery_percentage": 0.8,
@@ -47,7 +50,7 @@ def robot_state_publish():
         "current_action_progress": 0.56,
         "current_state": "AREA_RECORDING",
         "current_sub_state": "",
-        "current_area": 10,
+        "current_area": current_area,
         "current_path": 0,
         "current_path_index": 0,
         "emergency": 0,
@@ -67,6 +70,30 @@ def robot_state_publish():
     topic_data = bson.dumps(j)
     client.publish("robot_state/bson", topic_data)
 
+def action_publish():
+
+    j ={ "d":
+        [
+           {
+            "action_id": "mower_logic:area_recording/start_manual_mowing",
+            "action_name": 0,
+            "enabled": 0
+            },
+            {
+            "action_id": "mower_logic:area_recording/stop_manual_mowing",
+            "action_name": 0,
+            "enabled": 1
+            },
+                       {
+            "action_id": "mower_logic:mowing/skip_area",
+            "action_name": 0,
+            "enabled": 1
+            },         
+        ]
+    }
+
+    topic_data = bson.dumps(j)
+    client.publish("actions/bson", topic_data)
 
     
 
@@ -75,6 +102,7 @@ def publish(client):
     while True:
         time.sleep(1)
         robot_state_publish()
+        action_publish()
 
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 client.on_connect = on_connect
@@ -83,7 +111,6 @@ client.on_message = on_message
 client.on_subscribe = on_subscribe
 client.on_unsubscribe = on_unsubscribe
 client.connect('127.0.0.1', 1883, 60)
-client.subscribe("actions/bson")
 client.loop_start()
 publish(client)
 client.loop_stop()    

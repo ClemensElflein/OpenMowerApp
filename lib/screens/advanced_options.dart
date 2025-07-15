@@ -20,9 +20,9 @@ class AdvancedOptions extends GetView<RobotStateController> {
                       color: Colors.blue)) ,
             ),
             const SizedBox(
-              width: 40, // your of space
+              width: 40, 
             ),
-            SizedBox(
+            Obx(()=>SizedBox(
                 width: 200,
                 child: (n.Button.elevatedIcon("Skip current Area".n,n.Icon(Icons.skip_next))
                       ..enable = (controller
@@ -32,6 +32,7 @@ class AdvancedOptions extends GetView<RobotStateController> {
                       })
                   ..elevation = 2
                   ..p = 16),
+            )
       ])
         ..gap = 8
         ..px = 16
@@ -48,6 +49,7 @@ class AdvancedOptions extends GetView<RobotStateController> {
           ..p = 16)
           : (n.Button.elevatedIcon(
                   "Stop Manual Mowing".n, n.Icon(Icons.autorenew))
+                ..style = n.ButtonStyle(backgroundColor: Colors.red)
                 ..visible = controller
                     .hasAction("mower_logic:area_recording/stop_manual_mowing")
                 ..onPressed = () {
