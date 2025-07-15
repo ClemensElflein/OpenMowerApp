@@ -246,7 +246,7 @@ class MqttConnection  {
     client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
 
       for (var msg in c) {
-          // print("got message on ${msg.topic}");
+          debugPrint("got message on ${msg.topic}");
           final payload = msg.payload as MqttPublishMessage;
           switch(msg.topic) {
             case "version": {
