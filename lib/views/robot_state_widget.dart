@@ -5,6 +5,14 @@ import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/views/emergency_widget.dart';
 import 'package:niku/namespace.dart' as n;
 
+/**
+ * The widget that is being displayed in top right corner of the screen.
+ * It shows:
+ * - Emergency status
+ * - MQTT connection status
+ * - GPS status
+ * - Battery status and percentage value
+ */
 class RobotStateWidget extends GetView<RobotStateController> {
   const RobotStateWidget({super.key});
 
@@ -66,6 +74,12 @@ class RobotStateWidget extends GetView<RobotStateController> {
                 WidgetSpan(
                     child: getBatteryIcon(controller.robotState.value.batteryPercent, controller.robotState.value.isCharging),
                     alignment: PlaceholderAlignment.middle),
+                TextSpan(
+                  text: " ${(controller.robotState.value.batteryPercent * 100).toInt()}%",
+                  style: TextStyle(
+                    color: getBatteryColor(controller.robotState.value.batteryPercent),
+                  ),
+                )
               ]))
         ])
           ..mainAxisAlignment = MainAxisAlignment.end
@@ -73,57 +87,73 @@ class RobotStateWidget extends GetView<RobotStateController> {
           ..gap = 8));
   }
 
-  /* Place this ugly function last.
-   * Needs to be that ugly for not require --no-tree-shake-icons build option (Flutter >= 1.22),
-   * which would disable Icon subsetting and thus blow up our code by about 350k
+  Color getBatteryColor(double percent) {
+    if (percent > 0.3) {
+      return Colors.black54;
+    } else if (percent > 0.2) {
+      return Colors.orange[300]!;
+    } else {
+      return Colors.red[200]!;
+    }
+  }
+
+  IconData getChargingBatteryIcon(double percent) {
+    if (percent > 0.9) {
+      return MdiIcons.batteryCharging100;
+    } else if (percent > 0.8) {
+      return MdiIcons.batteryCharging90;
+    } else if (percent > 0.7) {
+      return MdiIcons.batteryCharging80;
+    } else if (percent > 0.6) {
+      return MdiIcons.batteryCharging70;
+    } else if (percent > 0.5) {
+      return MdiIcons.batteryCharging60;
+    } else if (percent > 0.4) {
+      return MdiIcons.batteryCharging50;
+    } else if (percent > 0.3) {
+      return MdiIcons.batteryCharging40;
+    } else if (percent > 0.2) {
+      return MdiIcons.batteryCharging30;
+    } else if (percent > 0.1) {
+      return MdiIcons.batteryCharging20;
+    } else {
+      return MdiIcons.batteryCharging10;
+    }
+  }
+
+  IconData getNonChargingBatteryIcon(double percent) {
+    if (percent > 0.9) {
+      return MdiIcons.battery;
+    } else if (percent > 0.8) {
+      return MdiIcons.battery90;
+    } else if (percent > 0.7) {
+      return MdiIcons.battery80;
+    } else if (percent > 0.6) {
+      return MdiIcons.battery70;
+    } else if (percent > 0.5) {
+      return MdiIcons.battery60;
+    } else if (percent > 0.4) {
+      return MdiIcons.battery50;
+    } else if (percent > 0.3) {
+      return MdiIcons.battery40;
+    } else if (percent > 0.2) {
+      return MdiIcons.battery30;
+    } else if (percent > 0.1) {
+      return MdiIcons.battery20;
+    } else if (percent > 0) {
+      return MdiIcons.battery10;
+    } else {
+      return MdiIcons.batteryUnknown;
+    }
+  }
+
+  /**
+   * It would indicate if battery is charging while docked.
+   * It will be colored based on the battery charge level.
    */
   Icon getBatteryIcon(double percent, bool charging) {
-    if (charging) {
-      if (percent > 0.9) {
-        return const Icon(MdiIcons.batteryCharging100, color: Colors.black54);
-      } else if (percent > 0.8) {
-        return const Icon(MdiIcons.batteryCharging90, color: Colors.black54);
-      } else if (percent > 0.7) {
-        return const Icon(MdiIcons.batteryCharging80, color: Colors.black54);
-      } else if (percent > 0.6) {
-        return const Icon(MdiIcons.batteryCharging70, color: Colors.black54);
-      } else if (percent > 0.5) {
-        return const Icon(MdiIcons.batteryCharging60, color: Colors.black54);
-      } else if (percent > 0.4) {
-        return const Icon(MdiIcons.batteryCharging50, color: Colors.black54);
-      } else if (percent > 0.3) {
-        return Icon(MdiIcons.batteryCharging40, color: Colors.orange[300]);
-      } else if (percent > 0.2) {
-        return Icon(MdiIcons.batteryCharging30, color: Colors.orange[300]);
-      } else if (percent > 0.1) {
-        return Icon(MdiIcons.batteryCharging20, color: Colors.red[200]);
-      } else {
-        return Icon(MdiIcons.batteryCharging10, color: Colors.red[200]);
-      }
-    } else {
-      if (percent > 0.9) { 
-        return const Icon(MdiIcons.battery, color: Colors.black54);
-      } else if (percent > 0.8) {
-        return const Icon(MdiIcons.battery90, color: Colors.black54);
-      } else if (percent > 0.7) {
-        return const Icon(MdiIcons.battery80, color: Colors.black54);
-      } else if (percent > 0.6) {
-        return const Icon(MdiIcons.battery70, color: Colors.black54);
-      } else if (percent > 0.5) {
-        return const Icon(MdiIcons.battery60, color: Colors.black54);
-      } else if (percent > 0.4) {
-        return const Icon(MdiIcons.battery50, color: Colors.black54);
-      } else if (percent > 0.3) {
-        return Icon(MdiIcons.battery40, color: Colors.orange[300]);
-      } else if (percent > 0.2) {
-        return Icon(MdiIcons.battery30, color: Colors.orange[300]);
-      } else if (percent > 0.1) {
-        return Icon(MdiIcons.battery20, color: Colors.red[200]);
-      } else if (percent > 0) {
-        return Icon(MdiIcons.battery10, color: Colors.red[200]);
-      } else {
-        return Icon(MdiIcons.batteryUnknown, color: Colors.grey[400]);
-      }
-    }
+    final iconData = charging ? getChargingBatteryIcon(percent) : getNonChargingBatteryIcon(percent);
+    final color = percent == 0 ? Colors.grey[400]! : getBatteryColor(percent);
+    return Icon(iconData, color: color);
   }
 }
