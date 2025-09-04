@@ -167,19 +167,23 @@ class MqttConnection  {
   }
 
   void parseRobotState(obj) {
-    RobotState state = RobotState();
-    state.isConnected = true;
-    state.posX = obj["d"]["pose"]["x"];
-    state.posY = -obj["d"]["pose"]["y"];
-    state.heading = obj["d"]["pose"]["heading"];
-    state.posAccuracy = obj["d"]["pose"]["pos_accuracy"];
-    state.headingAccuracy = obj["d"]["pose"]["heading_accuracy"];
-    state.headingValid = obj["d"]["pose"]["heading_valid"] > 0;
-    state.isEmergency = obj["d"]["emergency"] > 0;
-    state.isCharging = obj["d"]["is_charging"] > 0;
-    state.currentState = obj["d"]["current_state"];
-    state.gpsPercent = obj["d"]["gps_percentage"];
-    state.batteryPercent = obj["d"]["battery_percentage"];
+    RobotState state        = RobotState();
+    state.isConnected       = true;
+    state.posX              = obj["d"]["pose"]["x"];
+    state.posY              = -obj["d"]["pose"]["y"];
+    state.heading           = obj["d"]["pose"]["heading"];
+    state.posAccuracy       = obj["d"]["pose"]["pos_accuracy"];
+    state.headingAccuracy   = obj["d"]["pose"]["heading_accuracy"];
+    state.headingValid      = obj["d"]["pose"]["heading_valid"] > 0;
+    state.isEmergency       = obj["d"]["emergency"] > 0;
+    state.isCharging        = obj["d"]["is_charging"] > 0;
+    state.rainDetected      = obj["d"]["rain_detected"] > 0;
+    state.currentState      = obj["d"]["current_state"];
+    state.gpsPercent        = obj["d"]["gps_percentage"];
+    state.batteryPercent    = obj["d"]["battery_percentage"];
+    state.currentArea       = obj["d"]["current_area"];
+    state.currentPath       = obj["d"]["current_path"];
+    state.currentPathIndex  = obj["d"]["current_path_index"];
     robotStateController.robotState.value = state;
   }
 
@@ -242,7 +246,7 @@ class MqttConnection  {
     client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
 
       for (var msg in c) {
-          // print("got message on ${msg.topic}");
+          debugPrint("got message on ${msg.topic}");
           final payload = msg.payload as MqttPublishMessage;
           switch(msg.topic) {
             case "version": {

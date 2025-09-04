@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:niku/namespace.dart' as n;
 import 'package:open_mower_app/controllers/robot_state_controller.dart';
 import 'package:open_mower_app/screens/dashboard.dart';
+import 'package:open_mower_app/screens/advanced_options.dart';
 import 'package:open_mower_app/screens/sensor_values.dart';
 import 'package:open_mower_app/screens/settings.dart';
 import 'package:open_mower_app/views/logo_widget.dart';
@@ -13,7 +14,7 @@ class MainScreen extends GetView<RobotStateController> {
   MainScreen({super.key});
 
   final widgetList = <Widget>[
-    Dashboard(),const SensorValues(),const Settings()
+    Dashboard(), AdvancedOptions(), const SensorValues(),const Settings()
   ];
 
   final _index = 0.obs;
@@ -63,11 +64,19 @@ class MainScreen extends GetView<RobotStateController> {
         },
       ),
       ListTile(
+        leading: n.Icon(Icons.settings_applications),
+        title: const Text('Advanced Options'),
+        onTap: () {
+          Get.back();
+          _index.value= 1;
+        },
+      ),
+      ListTile(
         leading: n.Icon(Icons.line_axis),
         title: const Text('Sensor Values'),
         onTap: () {
           Get.back();
-          _index.value= 1;
+          _index.value= 2;
         },
       ),
     ];
@@ -79,7 +88,7 @@ class MainScreen extends GetView<RobotStateController> {
         title: const Text('Settings'),
         onTap: () {
           Get.back();
-          _index.value= 2;
+          _index.value= 3;
         },
       ));
     }

@@ -82,7 +82,9 @@ class SensorWidget extends StatelessWidget {
                         ..textAlign = TextAlign.center)),
               Expanded(
                   child: AutoSizeText(
-                "${sensor?.value.toStringAsFixed(2) ?? "N/A"} ${sensor?.unit.replaceAll("deg.C", "°C")}",
+                "${sensor?.value.toStringAsFixed(
+                  sensor?.unit.toUpperCase() == "M" ? 3 : 2
+                ) ?? "N/A"} ${sensor?.unit.replaceAll("deg.C", "°C")}",
                 maxLines: 1,
                 style: const TextStyle(
                     fontSize: 30,
