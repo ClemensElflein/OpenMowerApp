@@ -97,9 +97,14 @@ jobs:
         run: |
           OUT=""
           for t in ${{ needs.meta.outputs.base_tags }}; do
-            OUT="$OUT\n${{ env.IMAGE_NAME }}:$t-amd64"
+            TAG="${{ env.IMAGE_NAME }}:$t-amd64"
+            if [ -z "$OUT" ]; then
+              OUT="$TAG"
+            else
+              OUT="$OUT"$'\n'"$TAG"
+            fi
           done
-          echo "list=$OUT" >> $GITHUB_OUTPUT
+          printf 'list=%s\n' "$OUT" >> $GITHUB_OUTPUT
       - name: Build & Push amd64
         id: build
         uses: docker/build-push-action@v5
@@ -141,10 +146,15 @@ jobs:
         id: tags
         run: |
           OUT=""
-            for t in ${{ needs.meta.outputs.base_tags }}; do
-              OUT="$OUT\n${{ env.IMAGE_NAME }}:$t-arm64"
-            done
-          echo "list=$OUT" >> $GITHUB_OUTPUT
+          for t in ${{ needs.meta.outputs.base_tags }}; do
+            TAG="${{ env.IMAGE_NAME }}:$t-arm64"
+            if [ -z "$OUT" ]; then
+              OUT="$TAG"
+            else
+              OUT="$OUT"$'\n'"$TAG"
+            fi
+          done
+          printf 'list=%s\n' "$OUT" >> $GITHUB_OUTPUT
       - name: Build & Push arm64
         id: build
         uses: docker/build-push-action@v5
