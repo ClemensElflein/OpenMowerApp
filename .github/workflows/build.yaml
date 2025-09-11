@@ -51,8 +51,17 @@ jobs:
       - name: Compute parameters
         id: compute
         run: |
+          SHORT="${GITHUB_SHA::7}"
+          BRANCH_RAW="${GITHUB_REF_NAME}"
+          BRANCH_SAFE="${BRANCH_RAW,,}"
+          BRANCH_SAFE="${BRANCH_SAFE//\//-}"
+          BRANCH_SAFE="${BRANCH_SAFE//[^a-z0-9._-]/-}"
           if [ "${{ github.event_name }}" = "push" ]; then
-            BASE_TAGS="latest sha-${GITHUB_SHA::7}"
+            # Always include commit-based tags; add 'latest' only for main
+            BASE_TAGS="sha-${SHORT} ${BRANCH_SAFE}-${SHORT}"
+            if [ "$BRANCH_SAFE" = "main" ]; then
+              BASE_TAGS="latest $BASE_TAGS"
+            fi
             RENDERER="html"
             USE_CACHE="true"
             ARCH_CHOICE="both"
@@ -60,7 +69,10 @@ jobs:
             RENDERER="${{ github.event.inputs.renderer }}"
             USE_CACHE="${{ github.event.inputs.use_cache }}"
             ARCH_CHOICE="${{ github.event.inputs.arch }}"
-            BASE_TAGS="manual-${GITHUB_RUN_NUMBER} sha-${GITHUB_SHA::7}"
+            BASE_TAGS="sha-${SHORT} ${BRANCH_SAFE}-${SHORT}"
+            if [ "$BRANCH_SAFE" = "main" ]; then
+              BASE_TAGS="latest $BASE_TAGS"
+            fi
           fi
           case "$ARCH_CHOICE" in
             both) BUILD_AMD64=true; BUILD_ARM64=true; BUILD_BOTH=true ;;
@@ -130,6 +142,19 @@ jobs:
           sbom: false
           cache-from: ${{ needs.meta.outputs.use_cache == 'true' && 'type=gha' || '' }}
           cache-to: ${{ needs.meta.outputs.use_cache == 'true' && 'type=gha,mode=max' || '' }}
+      - name: Export image as tar (amd64)
+        run: |
+          PRIMARY=$(echo "${{ steps.tags.outputs.list }}" | grep -v ':latest' | head -n1 || echo "${{ steps.tags.outputs.list }}" | head -n1)
+          echo "Using primary tag: $PRIMARY"
+          docker pull "$PRIMARY"
+          docker save "$PRIMARY" -o image-amd64.tar
+          ls -lh image-amd64.tar
+      - name: Upload image artifact (amd64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-amd64
+          path: image-amd64.tar
+          retention-days: 7
 
   build_arm64:
     if: needs.meta.outputs.build_arm64 == 'true'
@@ -186,6 +211,19 @@ jobs:
           sbom: false
           cache-from: ${{ needs.meta.outputs.use_cache == 'true' && 'type=gha' || '' }}
           cache-to: ${{ needs.meta.outputs.use_cache == 'true' && 'type=gha,mode=max' || '' }}
+      - name: Export image as tar (arm64)
+        run: |
+          PRIMARY=$(echo "${{ steps.tags.outputs.list }}" | grep -v ':latest' | head -n1 || echo "${{ steps.tags.outputs.list }}" | head -n1)
+          echo "Using primary tag: $PRIMARY"
+          docker pull "$PRIMARY"
+          docker save "$PRIMARY" -o image-arm64.tar
+          ls -lh image-arm64.tar
+      - name: Upload image artifact (arm64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-arm64
+          path: image-arm64.tar
+          retention-days: 7
 
   manifest:
     if: needs.meta.outputs.build_both == 'true'
