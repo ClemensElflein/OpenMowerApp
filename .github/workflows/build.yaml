@@ -2,35 +2,40 @@ name: Build Docker Image
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       arch:
-        description: "Target architecture (amd64, arm64, both)"
+        description: Target architecture (amd64, arm64, both)
         required: true
         default: both
         type: choice
-        options: [ amd64, arm64, both ]
+        options:
+          - amd64
+          - arm64
+          - both
       use_cache:
-        description: "Use build cache (true/false)"
+        description: Use build cache (true/false)
         required: true
-        default: true
+        default: "true"
         type: choice
-        options: [ true, false ]
+        options:
+          - "true"
+          - "false"
       renderer:
-        description: "Flutter web renderer (html|canvaskit)"
+        description: Flutter web renderer (html|canvaskit)
         required: true
         default: html
         type: choice
-        options: [ html, canvaskit ]
+        options:
+          - html
+          - canvaskit
 
 permissions:
   contents: read
   packages: write
   id-token: write
-
-env:
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/openmowerapp
 
 jobs:
   meta:
@@ -43,7 +48,7 @@ jobs:
       build_amd64: ${{ steps.compute.outputs.build_amd64 }}
       build_arm64: ${{ steps.compute.outputs.build_arm64 }}
     steps:
-      - name: Compute tags & params
+      - name: Compute parameters
         id: compute
         run: |
           if [ "${{ github.event_name }}" = "push" ]; then
@@ -55,7 +60,6 @@ jobs:
             RENDERER="${{ github.event.inputs.renderer }}"
             USE_CACHE="${{ github.event.inputs.use_cache }}"
             ARCH_CHOICE="${{ github.event.inputs.arch }}"
-            # Manual run: tag with run number + short sha
             BASE_TAGS="manual-${GITHUB_RUN_NUMBER} sha-${GITHUB_SHA::7}"
           fi
           case "$ARCH_CHOICE" in
@@ -95,9 +99,11 @@ jobs:
       - name: Prepare tag list (amd64)
         id: tags
         run: |
+          OWNER_LC="${GITHUB_REPOSITORY_OWNER,,}"
+          IMAGE_BASE="ghcr.io/$OWNER_LC/openmowerapp"
           OUT=""
           for t in ${{ needs.meta.outputs.base_tags }}; do
-            TAG="${{ env.IMAGE_NAME }}:$t-amd64"
+            TAG="$IMAGE_BASE:$t-amd64"
             if [ -z "$OUT" ]; then
               OUT="$TAG"
             else
@@ -149,9 +155,11 @@ jobs:
       - name: Prepare tag list (arm64)
         id: tags
         run: |
+          OWNER_LC="${GITHUB_REPOSITORY_OWNER,,}"
+          IMAGE_BASE="ghcr.io/$OWNER_LC/openmowerapp"
           OUT=""
           for t in ${{ needs.meta.outputs.base_tags }}; do
-            TAG="${{ env.IMAGE_NAME }}:$t-arm64"
+            TAG="$IMAGE_BASE:$t-arm64"
             if [ -z "$OUT" ]; then
               OUT="$TAG"
             else
@@ -180,8 +188,7 @@ jobs:
           cache-to: ${{ needs.meta.outputs.use_cache == 'true' && 'type=gha,mode=max' || '' }}
 
   manifest:
-    if: >-
-      needs.meta.outputs.build_both == 'true'
+    if: needs.meta.outputs.build_both == 'true'
     needs: [meta, build_amd64, build_arm64]
     runs-on: ubuntu-latest
     steps:
@@ -193,11 +200,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Create & Push multi-arch manifests
         run: |
+          OWNER_LC="${GITHUB_REPOSITORY_OWNER,,}"
+          IMAGE_BASE="ghcr.io/$OWNER_LC/openmowerapp"
           for t in ${{ needs.meta.outputs.base_tags }}; do
             docker buildx imagetools create \
-              -t ${{ env.IMAGE_NAME }}:$t \
-              ${{ env.IMAGE_NAME }}:${t}-amd64@${{ needs.build_amd64.outputs.digest }} \
-              ${{ env.IMAGE_NAME }}:${t}-arm64@${{ needs.build_arm64.outputs.digest }}
+              -t $IMAGE_BASE:$t \
+              $IMAGE_BASE:${t}-amd64@${{ needs.build_amd64.outputs.digest }} \
+              $IMAGE_BASE:${t}-arm64@${{ needs.build_arm64.outputs.digest }}
           done
       - name: Summary
         run: |
