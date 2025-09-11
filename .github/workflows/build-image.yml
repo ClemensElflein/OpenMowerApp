@@ -1,0 +1,178 @@
+name: Build Docker Image
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      arch:
+        description: "Target architecture (amd64, arm64, both)"
+        required: true
+        default: both
+        type: choice
+        options: [ amd64, arm64, both ]
+      use_cache:
+        description: "Use build cache (true/false)"
+        required: true
+        default: true
+        type: choice
+        options: [ true, false ]
+      renderer:
+        description: "Flutter web renderer (html|canvaskit)"
+        required: true
+        default: html
+        type: choice
+        options: [ html, canvaskit ]
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/openmowerapp
+
+jobs:
+  meta:
+    runs-on: ubuntu-latest
+    outputs:
+      base_tags: ${{ steps.compute.outputs.base_tags }}
+      renderer: ${{ steps.compute.outputs.renderer }}
+      use_cache: ${{ steps.compute.outputs.use_cache }}
+      build_both: ${{ steps.compute.outputs.build_both }}
+      build_amd64: ${{ steps.compute.outputs.build_amd64 }}
+      build_arm64: ${{ steps.compute.outputs.build_arm64 }}
+    steps:
+      - name: Compute tags & params
+        id: compute
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            BASE_TAGS="latest sha-${GITHUB_SHA::7}"
+            RENDERER="html"
+            USE_CACHE="true"
+            ARCH_CHOICE="both"
+          else
+            RENDERER="${{ github.event.inputs.renderer }}"
+            USE_CACHE="${{ github.event.inputs.use_cache }}"
+            ARCH_CHOICE="${{ github.event.inputs.arch }}"
+            # Manual run: tag with run number + short sha
+            BASE_TAGS="manual-${GITHUB_RUN_NUMBER} sha-${GITHUB_SHA::7}"
+          fi
+          case "$ARCH_CHOICE" in
+            both) BUILD_AMD64=true; BUILD_ARM64=true; BUILD_BOTH=true ;;
+            amd64) BUILD_AMD64=true; BUILD_ARM64=false; BUILD_BOTH=false ;;
+            arm64) BUILD_AMD64=false; BUILD_ARM64=true; BUILD_BOTH=false ;;
+            *) echo "Unknown arch choice" >&2; exit 1 ;;
+          esac
+          echo "base_tags=$BASE_TAGS" >> $GITHUB_OUTPUT
+          echo "renderer=$RENDERER" >> $GITHUB_OUTPUT
+          echo "use_cache=$USE_CACHE" >> $GITHUB_OUTPUT
+          echo "build_both=$BUILD_BOTH" >> $GITHUB_OUTPUT
+          echo "build_amd64=$BUILD_AMD64" >> $GITHUB_OUTPUT
+          echo "build_arm64=$BUILD_ARM64" >> $GITHUB_OUTPUT
+
+  build_amd64:
+    if: needs.meta.outputs.build_amd64 == 'true'
+    needs: meta
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Prepare tag list (amd64)
+        id: tags
+        run: |
+          OUT=""
+          for t in ${{ needs.meta.outputs.base_tags }}; do
+            OUT="$OUT\n${{ env.IMAGE_NAME }}:$t-amd64"
+          done
+          echo "list=$OUT" >> $GITHUB_OUTPUT
+      - name: Build & Push amd64
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          platforms: linux/amd64
+          build-args: |
+            RENDERER=${{ needs.meta.outputs.renderer }}
+          tags: ${{ steps.tags.outputs.list }}
+          provenance: false
+          sbom: false
+          cache-from: ${{ needs.meta.outputs.use_cache == 'true' && 'type=gha' || '' }}
+          cache-to: ${{ needs.meta.outputs.use_cache == 'true' && 'type=gha,mode=max' || '' }}
+
+  build_arm64:
+    if: needs.meta.outputs.build_arm64 == 'true'
+    needs: meta
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Prepare tag list (arm64)
+        id: tags
+        run: |
+          OUT=""
+            for t in ${{ needs.meta.outputs.base_tags }}; do
+              OUT="$OUT\n${{ env.IMAGE_NAME }}:$t-arm64"
+            done
+          echo "list=$OUT" >> $GITHUB_OUTPUT
+      - name: Build & Push arm64
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          platforms: linux/arm64
+          build-args: |
+            RENDERER=${{ needs.meta.outputs.renderer }}
+          tags: ${{ steps.tags.outputs.list }}
+          provenance: false
+          sbom: false
+          cache-from: ${{ needs.meta.outputs.use_cache == 'true' && 'type=gha' || '' }}
+          cache-to: ${{ needs.meta.outputs.use_cache == 'true' && 'type=gha,mode=max' || '' }}
+
+  manifest:
+    if: >-
+      needs.meta.outputs.build_both == 'true'
+    needs: [meta, build_amd64, build_arm64]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create & Push multi-arch manifests
+        run: |
+          for t in ${{ needs.meta.outputs.base_tags }}; do
+            docker buildx imagetools create \
+              -t ${{ env.IMAGE_NAME }}:$t \
+              ${{ env.IMAGE_NAME }}:${t}-amd64@${{ needs.build_amd64.outputs.digest }} \
+              ${{ env.IMAGE_NAME }}:${t}-arm64@${{ needs.build_arm64.outputs.digest }}
+          done
+      - name: Summary
+        run: |
+          echo "Created multi-arch manifests for: ${{ needs.meta.outputs.base_tags }}" >> $GITHUB_STEP_SUMMARY
