@@ -1,0 +1,23 @@
+# Flutter build artifacts
+build/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+**/Thumbs.db
+**/.DS_Store
+.idea/
+.vscode/
+android/
+ios/
+windows/
+macos/
+linux/
+!linux/ # keep root linux dir if needed for build? we don't need native targets for web
+# ACHTUNG: web/ nicht ignorieren, sonst schlägt `flutter build web` im Dockerfile fehl
+assets/google_fonts/*.txt
+# Git
+.git
+.gitignore
+# Others
+*.iml
