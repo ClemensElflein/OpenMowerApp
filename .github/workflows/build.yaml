@@ -108,23 +108,28 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Prepare tag list (amd64)
+      - name: Determine tags (amd64)
         id: tags
         run: |
           OWNER_LC="${GITHUB_REPOSITORY_OWNER,,}"
           IMAGE_BASE="ghcr.io/$OWNER_LC/openmowerapp"
-          OUT=""
-          for t in ${{ needs.meta.outputs.base_tags }}; do
-            TAG="$IMAGE_BASE:$t-amd64"
-            if [ -z "$OUT" ]; then
-              OUT="$TAG"
-            else
-              OUT="$OUT"$'\n'"$TAG"
-            fi
-          done
+          if [ "${{ needs.meta.outputs.build_both }}" = "true" ]; then
+            # Multi-arch: use a single ephemeral CI tag (per arch) just for the pushed image
+            TAGS="$IMAGE_BASE:ci-${GITHUB_RUN_ID}-amd64"
+          else
+            # Single arch: final tags now
+            TAGS=""
+            for t in ${{ needs.meta.outputs.base_tags }}; do
+              if [ -z "$TAGS" ]; then
+                TAGS="$IMAGE_BASE:$t"
+              else
+                TAGS="$TAGS"$'\n'"$IMAGE_BASE:$t"
+              fi
+            done
+          fi
           {
             echo 'list<<EOF'
-            printf '%s\n' "$OUT"
+            printf '%s\n' "$TAGS"
             echo 'EOF'
           } >> $GITHUB_OUTPUT
       - name: Build & Push amd64
@@ -164,23 +169,26 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Prepare tag list (arm64)
+      - name: Determine tags (arm64)
         id: tags
         run: |
           OWNER_LC="${GITHUB_REPOSITORY_OWNER,,}"
           IMAGE_BASE="ghcr.io/$OWNER_LC/openmowerapp"
-          OUT=""
-          for t in ${{ needs.meta.outputs.base_tags }}; do
-            TAG="$IMAGE_BASE:$t-arm64"
-            if [ -z "$OUT" ]; then
-              OUT="$TAG"
-            else
-              OUT="$OUT"$'\n'"$TAG"
-            fi
-          done
+          if [ "${{ needs.meta.outputs.build_both }}" = "true" ]; then
+            TAGS="$IMAGE_BASE:ci-${GITHUB_RUN_ID}-arm64"
+          else
+            TAGS=""
+            for t in ${{ needs.meta.outputs.base_tags }}; do
+              if [ -z "$TAGS" ]; then
+                TAGS="$IMAGE_BASE:$t"
+              else
+                TAGS="$TAGS"$'\n'"$IMAGE_BASE:$t"
+              fi
+            done
+          fi
           {
             echo 'list<<EOF'
-            printf '%s\n' "$OUT"
+            printf '%s\n' "$TAGS"
             echo 'EOF'
           } >> $GITHUB_OUTPUT
       - name: Build & Push arm64
@@ -214,11 +222,15 @@ jobs:
         run: |
           OWNER_LC="${GITHUB_REPOSITORY_OWNER,,}"
           IMAGE_BASE="ghcr.io/$OWNER_LC/openmowerapp"
+          AMD64_DIGEST="${{ needs.build_amd64.outputs.digest }}"
+          ARM64_DIGEST="${{ needs.build_arm64.outputs.digest }}"
+          echo "amd64 digest: $AMD64_DIGEST" >> $GITHUB_STEP_SUMMARY
+          echo "arm64 digest: $ARM64_DIGEST" >> $GITHUB_STEP_SUMMARY
           for t in ${{ needs.meta.outputs.base_tags }}; do
             docker buildx imagetools create \
               -t $IMAGE_BASE:$t \
-              $IMAGE_BASE:${t}-amd64@${{ needs.build_amd64.outputs.digest }} \
-              $IMAGE_BASE:${t}-arm64@${{ needs.build_arm64.outputs.digest }}
+              $IMAGE_BASE@$AMD64_DIGEST \
+              $IMAGE_BASE@$ARM64_DIGEST
           done
       - name: Summary
         run: |
