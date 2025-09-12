@@ -58,7 +58,7 @@ jobs:
           BRANCH_SAFE="${BRANCH_SAFE//[^a-z0-9._-]/-}"
           if [ "${{ github.event_name }}" = "push" ]; then
             # Always include commit-based tags; add 'latest' only for main
-            BASE_TAGS="sha-${SHORT} ${BRANCH_SAFE}-${SHORT} ${BRANCH_SAFE}"
+            BASE_TAGS="sha-${SHORT} ${BRANCH_SAFE}"
             if [ "$BRANCH_SAFE" = "main" ]; then
               BASE_TAGS="latest $BASE_TAGS"
             fi
@@ -69,7 +69,7 @@ jobs:
             RENDERER="${{ github.event.inputs.renderer }}"
             USE_CACHE="${{ github.event.inputs.use_cache }}"
             ARCH_CHOICE="${{ github.event.inputs.arch }}"
-            BASE_TAGS="sha-${SHORT} ${BRANCH_SAFE}-${SHORT} ${BRANCH_SAFE}"
+            BASE_TAGS="sha-${SHORT} ${BRANCH_SAFE}"
             if [ "$BRANCH_SAFE" = "main" ]; then
               BASE_TAGS="latest $BASE_TAGS"
             fi
