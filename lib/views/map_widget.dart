@@ -287,21 +287,18 @@ class MapPainter extends CustomPainter {
     //
 
     for (final area in mapModel.navigationAreas) {
-      canvas.drawPath(area.outline, _navigationFillPaint);
-      canvas.drawPath(area.outline, _mowOutlinePaint);
-      for (final obstacle in area.obstacles) {
-        canvas.drawPath(obstacle, _obstaclePaint);
-      }
+      canvas.drawPath(area, _navigationFillPaint);
+      canvas.drawPath(area, _mowOutlinePaint);
     }
 
     for (final area in mapModel.mowingAreas) {
-      canvas.drawPath(area.outline, _mowFillPaint);
+      canvas.drawPath(area, _mowFillPaint);
       // grassPattern.paintOnPath(canvas, Size(mapWidth, mapHeight), area.outline);
-
-      canvas.drawPath(area.outline, _mowOutlinePaint);
-      for (final obstacle in area.obstacles) {
-        canvas.drawPath(obstacle, _obstaclePaint);
+      canvas.drawPath(area, _mowOutlinePaint);
       }
+
+    for (final path in mapModel.obstacles) {
+      canvas.drawPath(path, _obstaclePaint);
     }
 
     // draw dock

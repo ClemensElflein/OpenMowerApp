@@ -71,44 +71,79 @@ class MqttConnection  {
 
   }
 
-  MapAreaModel convertAreaToPath(area) {
-    Path areaPoly = Path();
-    {
-      bool first = true;
-      for (final pt in area["outline"]) {
-        if (first) {
-          areaPoly.moveTo(pt["x"], -pt["y"]);
-          first = false;
-        } else {
-          areaPoly.lineTo(pt["x"], -pt["y"]);
-        }
-      }
-      areaPoly.close();
-    }
-    final List<Path> obstaclePolys = [];
-    {
-      final obs = area["obstacles"] ?? [];
-      for (final list in obs) {
-        Path obstaclePoly = Path();
-        bool first = true;
-        for (final pt in list) {
-          if (first) {
-            obstaclePoly.moveTo(pt["x"], -pt["y"]);
-            first = false;
-          } else {
-            obstaclePoly.lineTo(pt["x"], -pt["y"]);
-          }
-        }
-        obstaclePoly.close();
-        obstaclePolys.add(obstaclePoly);
+  Path convertJsonPolygon(path) {
+    Path pathPoly = Path();
+    bool first = true;
+    for (final pt in path) {
+      if (first) {
+        pathPoly.moveTo(pt["x"], -pt["y"]);
+        first = false;
+      } else {
+        pathPoly.lineTo(pt["x"], -pt["y"]);
       }
     }
-
-
-    return MapAreaModel(areaPoly, obstaclePolys);
+    pathPoly.close();
+    return pathPoly;
   }
 
   void parseMap(obj) {
+    final mapModel = MapModel();
+
+    // calculate bounds of areas
+    if (obj["d"]["areas"].isNotEmpty) {
+      double minX = double.infinity;
+      double maxX = double.negativeInfinity;
+      double minY = double.infinity;
+      double maxY = double.negativeInfinity;
+      for (final area in obj["d"]["areas"]) {
+        for (final pt in area["outline"]) {
+          minX = min(minX, pt["x"]);
+          maxX = max(maxX, pt["x"]);
+          minY = min(minY, pt["y"]);
+          maxY = max(maxY, pt["y"]);
+        }
+      }
+      mapModel.width = maxX - minX;
+      mapModel.height = maxY - minY;
+      mapModel.centerX = (minX + maxX) / 2;
+      mapModel.centerY = -(minY + maxY) / 2;
+    } else {
+      mapModel.width = 0;
+      mapModel.height = 0;
+      mapModel.centerX = 0;
+      mapModel.centerY = 0;
+    }
+
+    if (obj["d"]["docking_stations"].isNotEmpty) {
+      mapModel.dockX = obj["d"]["docking_stations"][0]["position"]["x"];
+      mapModel.dockY = -obj["d"]["docking_stations"][0]["position"]["y"];
+      mapModel.dockHeading = obj["d"]["docking_stations"][0]["heading"];
+    } else {
+      mapModel.dockX = 0;
+      mapModel.dockY = 0;
+      mapModel.dockHeading = 0;
+    }
+
+    for (final area in obj["d"]["areas"]) {
+      final type = area["properties"]["type"];
+      if (type == "mow") {
+        mapModel.mowingAreas.add(convertJsonPolygon(area["outline"]));
+      } else if (type == "nav") {
+        mapModel.navigationAreas.add(convertJsonPolygon(area["outline"]));
+      } else if (type == "obstacle") {
+        mapModel.obstacles.add(convertJsonPolygon(area["outline"]));
+      }
+    }
+
+    debugPrint(
+        "Got a map with ${mapModel.mowingAreas.length} mowing areas and ${mapModel.navigationAreas.length} navigation areas. Size: ${mapModel.width} x ${mapModel.height}. Docking pos: ${mapModel.dockX}, ${mapModel.dockY}");
+
+    final RobotStateController robotStateController = Get.find();
+    robotStateController.map.value = mapModel;
+    robotStateController.map.refresh();
+  }
+
+  void parseLegacyMap(obj) {
     final mapModel = MapModel();
 
     mapModel.width =   obj["d"]["meta"]["mapWidth"] ?? 0;
@@ -122,17 +157,24 @@ class MqttConnection  {
     final wa = obj["d"]["working_areas"];
     if(wa != null) {
       for(final area in wa) {
-        mapModel.mowingAreas.add(convertAreaToPath(area));
+        mapModel.mowingAreas.add(convertJsonPolygon(area["outline"]));
+        for (final obstacle in area["obstacles"] ?? []) {
+          mapModel.obstacles.add(convertJsonPolygon(obstacle));
+        }
       }
     }
     final na = obj["d"]["navigation_areas"];
     if(na != null) {
       for(final area in na) {
-        mapModel.navigationAreas.add(convertAreaToPath(area));
+        mapModel.navigationAreas.add(convertJsonPolygon(area["outline"]));
+        for (final obstacle in area["obstacles"] ?? []) {
+          mapModel.obstacles.add(convertJsonPolygon(obstacle));
+        }
       }
     }
 
-    debugPrint("Got a map with ${mapModel.mowingAreas.length} mowing areas and ${mapModel.navigationAreas.length} navigation areas. Size: ${mapModel.width} x ${mapModel.height}. Docking pos: ${mapModel.dockX}, ${mapModel.dockY}");
+    debugPrint(
+        "Got a legacy map with ${mapModel.mowingAreas.length} mowing areas and ${mapModel.navigationAreas.length} navigation areas. Size: ${mapModel.width} x ${mapModel.height}. Docking pos: ${mapModel.dockX}, ${mapModel.dockY}");
 
     final RobotStateController robotStateController = Get.find();
     robotStateController.map.value = mapModel;
@@ -273,7 +315,11 @@ class MqttConnection  {
                 continue;
               }
               final object = BsonCodec.deserialize(BsonBinary.from(bytes));
-              parseMap(object);
+              if (object["d"].containsKey("areas")) {
+                parseMap(object);
+              } else {
+                parseLegacyMap(object);
+              }
             }
             break;
             case "map_overlay/bson": {
